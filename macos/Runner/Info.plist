@@ -28,5 +28,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<!-- Permissions list starts here -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location is required to track the device's location.</string>
+    <!-- Permissions lists ends here -->
 </dict>
 </plist>

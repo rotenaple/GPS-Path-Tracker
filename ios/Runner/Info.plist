@@ -45,5 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Permissions list starts here -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location is required to track the device's location.</string>
+    <!-- Permissions lists ends here -->
+
 </dict>
 </plist>
