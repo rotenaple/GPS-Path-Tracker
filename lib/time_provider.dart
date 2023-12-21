@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 class TimeUpdater {
   Stream<DateTime> getTimeStream() {
     return Stream<DateTime>.periodic(
-      Duration(seconds: 15),
+      Duration(seconds: 10),
           (count) => DateTime.now(),
     );
   }
@@ -31,12 +31,10 @@ class TimeController {
   }
 }
 
-/*class GetFutureTime {
+class GetFutureTime {
   String getFutureTime(int secondsToAdd) {
     final currentTime = DateTime.now();
     final futureTime = currentTime.add(Duration(seconds: secondsToAdd));
     return DateFormat.Hm().format(futureTime);
   }
 }
-
-Currently Borked*/

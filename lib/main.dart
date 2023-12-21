@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/time_provider.dart';
+import 'dart:developer' as developer;
 
 void main() => runApp(MyApp());
 
@@ -13,12 +14,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _currentLocation = 'Fetching location...';
   double _currentSpeed = 0;
-  String _currentSpeedDisplay = "";
   double _linearDistance = 0.0;
   String _linearDistanceDisplay = "";
   LatLng _target = LatLng(-35.0082001, 138.5723053);
   String _targetStr = "-35.0082001, 138.5723053";
-  String _estArrivalTime = "";
   String _targetName = "Point Alpha";
   final TimeController _timeController = TimeController();
   LocationService _locationService = LocationService();
@@ -34,13 +33,14 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         _currentLocation = '$latitude, $longitude';
         _currentSpeed = speed;
-        _calculateDistance();
+        _calculateDistanceDisplay();
         _calculateSpeedDisplay();
+        _calculateEtaDisplay();
       });
     });
   }
 
-  void _calculateDistance() {
+  String _calculateDistanceDisplay() {
     final distance = Distance();
     String _unit = "m";
     _linearDistance = distance(
@@ -48,16 +48,6 @@ class _MyAppState extends State<MyApp> {
       _target,
     );
 
-    /*if (_currentSpeed != 0) {
-      int _estTimeRequired = (_linearDistance / _currentSpeed * 3.6) as int;
-      _estArrivalTime = GetFutureTime().getFutureTime(_estTimeRequired);
-    } else {
-      _estArrivalTime = "N/A";
-    }
-
-    Currently Borked*/
-
-    _estArrivalTime = "?";
 
     if (_linearDistance >= 1000) {
       _linearDistanceDisplay = (_linearDistance / 1000).toStringAsFixed(2);
@@ -65,11 +55,17 @@ class _MyAppState extends State<MyApp> {
     } else {
       _linearDistanceDisplay = (_linearDistance).toStringAsFixed(0);
     }
-    _linearDistanceDisplay = '$_linearDistanceDisplay$_unit';
+    return '$_linearDistanceDisplay$_unit';
   }
 
-  void _calculateSpeedDisplay() {
-    _currentSpeedDisplay = _currentSpeed.toStringAsFixed(1) + "km/h";
+  String _calculateSpeedDisplay() {
+    return _currentSpeed.toStringAsFixed(1) + "km/h";
+  }
+
+  String _calculateEtaDisplay() {
+    if (_currentSpeed > 0.0) {
+      return  GetFutureTime().getFutureTime((_linearDistance / _currentSpeed * 3.6).toInt());
+    } else {return "N/A";}
   }
 
   @override
@@ -225,7 +221,7 @@ class _MyAppState extends State<MyApp> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               Text(
-                                _currentSpeedDisplay,
+                                _calculateSpeedDisplay(),
                                 textAlign: TextAlign.start,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -233,7 +229,7 @@ class _MyAppState extends State<MyApp> {
                                 ),
                               ),
                               Text(
-                                _linearDistanceDisplay,
+                                _calculateDistanceDisplay(),
                                 textAlign: TextAlign.start,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -241,7 +237,7 @@ class _MyAppState extends State<MyApp> {
                                 ),
                               ),
                               Text(
-                                _estArrivalTime,
+                                _calculateEtaDisplay(),
                                 textAlign: TextAlign.start,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
