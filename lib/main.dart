@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
     final directory = await getApplicationDocumentsDirectory();
     print("nameLatLngSet");
     print(nameLatLngSet);
-    if (nameLatLngSet.length > 2) {
+    if (nameLatLngSet.length > 2 && _linearDistance < 1000) {
       _lastPoint = LatLng(nameLatLngSet[_targetIndex - 1][1],
           nameLatLngSet[_targetIndex - 1][2]);
       _targetPoint = LatLng(
