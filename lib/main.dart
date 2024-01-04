@@ -4,8 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/time_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
 
 
