@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/time_provider.dart';
-import 'dart:developer' as developer;
 
 void main() => runApp(MyApp());
 
@@ -16,9 +15,26 @@ class _MyAppState extends State<MyApp> {
   double _currentSpeed = 0;
   double _linearDistance = 0.0;
   String _linearDistanceDisplay = "";
-  LatLng _target = LatLng(-35.0082001, 138.5723053);
-  String _targetStr = "-35.0082001, 138.5723053";
-  String _targetName = "Point Alpha";
+  List<List<dynamic>> nameLatLngSet = [
+    ['University1', -35.0071618, 138.5727096],
+    ['University2', -35.0090055, 138.5729734],
+    ['University3', -35.0082896, 138.5688693],
+  ];
+
+  int _targetIndex = 0;
+  LatLng _target = LatLng(0, 0);
+  String _targetStr = "";
+  String _targetName = "";
+
+
+  void initializeTarget() {
+    _target = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
+    print("target name");
+    print(_target);
+    _targetStr = '${nameLatLngSet[_targetIndex][1]}, ${nameLatLngSet[_targetIndex][2]}';
+    _targetName = nameLatLngSet[_targetIndex][0];
+  }
+
   final TimeController _timeController = TimeController();
   LocationService _locationService = LocationService();
 
@@ -26,6 +42,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initLocationStream();
+    initializeTarget();
   }
 
   void _initLocationStream() {
@@ -146,7 +163,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ),
                       Text(
-                        "Point Alpha",
+                        _targetName,
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
