@@ -16,9 +16,10 @@ class _MyAppState extends State<MyApp> {
   double _linearDistance = 0.0;
   String _linearDistanceDisplay = "";
   List<List<dynamic>> nameLatLngSet = [
-    ['University0', -35.0071618, 138.5727096],
-    ['University1', -35.0090055, 138.5729734],
-    ['University2', -35.0082896, 138.5688693],
+    ['Origin', -35.00818629443404, 138.57246491215653],
+    ['University1', -35.00777235413541, 138.57255099286377],
+    ['University2', -35.00766318271858, 138.57175682891975],
+    ['University3', -35.00802708687477, 138.57163742664840]
   ];
 
   int _targetIndex = 1;
@@ -28,7 +29,7 @@ class _MyAppState extends State<MyApp> {
   String _targetName = "";
 
 
-  void initializeTarget() {
+  void getTargetLatlong() {
     _lastPoint = LatLng(nameLatLngSet[_targetIndex-1][1], nameLatLngSet[_targetIndex-1][2]);
     _targetPoint = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
     print("target name");
@@ -44,7 +45,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initLocationStream();
-    initializeTarget();
+    getTargetLatlong();
   }
 
   void _initLocationStream() {
@@ -65,9 +66,12 @@ class _MyAppState extends State<MyApp> {
     _linearDistance = distance(_locationService.currentCentre, _targetPoint);
     // Calculate distance to next checkpoint
 
-    if (distance(_lastPoint,_targetPoint)
-        <distance(_lastPoint,_locationService.currentCentre))
-      {_targetIndex++;}
+    if (_targetIndex < nameLatLngSet.length - 1 &&
+        distance(_lastPoint,_targetPoint) < distance(_lastPoint,_locationService.currentCentre)) {
+        _targetIndex++;
+        getTargetLatlong();
+    }
+
 
     if (_linearDistance >= 1000) {
       _linearDistanceDisplay = (_linearDistance / 1000).toStringAsFixed(2);
