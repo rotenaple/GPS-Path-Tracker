@@ -16,21 +16,23 @@ class _MyAppState extends State<MyApp> {
   double _linearDistance = 0.0;
   String _linearDistanceDisplay = "";
   List<List<dynamic>> nameLatLngSet = [
-    ['University1', -35.0071618, 138.5727096],
-    ['University2', -35.0090055, 138.5729734],
-    ['University3', -35.0082896, 138.5688693],
+    ['University0', -35.0071618, 138.5727096],
+    ['University1', -35.0090055, 138.5729734],
+    ['University2', -35.0082896, 138.5688693],
   ];
 
-  int _targetIndex = 0;
-  LatLng _target = LatLng(0, 0);
+  int _targetIndex = 1;
+  LatLng _lastPoint = LatLng(0, 0);
+  LatLng _targetPoint = LatLng(0, 0);
   String _targetStr = "";
   String _targetName = "";
 
 
   void initializeTarget() {
-    _target = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
+    _lastPoint = LatLng(nameLatLngSet[_targetIndex-1][1], nameLatLngSet[_targetIndex-1][2]);
+    _targetPoint = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
     print("target name");
-    print(_target);
+    print(_targetPoint);
     _targetStr = '${nameLatLngSet[_targetIndex][1]}, ${nameLatLngSet[_targetIndex][2]}';
     _targetName = nameLatLngSet[_targetIndex][0];
   }
@@ -59,20 +61,21 @@ class _MyAppState extends State<MyApp> {
 
   String _calculateDistanceDisplay() {
     final distance = Distance();
-    String _unit = "m";
-    _linearDistance = distance(
-      _locationService.currentCentre,
-      _target,
-    );
+    String unit = "m";
+    _linearDistance = distance(_locationService.currentCentre, _targetPoint);
+    // Calculate distance to next checkpoint
 
+    if (distance(_lastPoint,_targetPoint)
+        <distance(_lastPoint,_locationService.currentCentre))
+      {_targetIndex++;}
 
     if (_linearDistance >= 1000) {
       _linearDistanceDisplay = (_linearDistance / 1000).toStringAsFixed(2);
-      _unit = 'km';
+      unit = 'km';
     } else {
       _linearDistanceDisplay = (_linearDistance).toStringAsFixed(0);
     }
-    return '$_linearDistanceDisplay$_unit';
+    return '$_linearDistanceDisplay$unit';
   }
 
   String _calculateSpeedDisplay() {

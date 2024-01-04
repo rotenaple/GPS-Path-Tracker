@@ -12,10 +12,7 @@ class LocationService {
       distanceFilter: 1,
     );
 
-    // Check if location permission is granted
-    final permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
+
       Geolocator.getPositionStream(locationSettings: locationSettings).listen(
             (Position? position) {
           if (position != null) {
@@ -32,20 +29,15 @@ class LocationService {
           }
         },
       );
-    } else {
-      // Handle the case where location permission is not granted.
-    }
+
   }
 
   Future<void> requestLocationPermission() async {
     final permissionStatus = await Permission.location.request();
 
     if (permissionStatus.isGranted) {
-      // Location permission granted, you can proceed with location-related tasks.
     } else if (permissionStatus.isDenied) {
-      // Location permission denied. Handle it appropriately.
     } else if (permissionStatus.isPermanentlyDenied) {
-      // Location permission permanently denied. You can open settings for the user to enable it manually.
       openAppSettings();
     }
   }
