@@ -1,7 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/time_provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -15,12 +21,9 @@ class _MyAppState extends State<MyApp> {
   double _currentSpeed = 0;
   double _linearDistance = 0.0;
   String _linearDistanceDisplay = "";
-  List<List<dynamic>> nameLatLngSet = [
-    ['Origin', -35.00818629443404, 138.57246491215653],
-    ['University1', -35.00777235413541, 138.57255099286377],
-    ['University2', -35.00766318271858, 138.57175682891975],
-    ['University3', -35.00802708687477, 138.57163742664840]
-  ];
+  List<List<dynamic>> nameLatLngSet = [];
+
+
 
   int _targetIndex = 1;
   LatLng _lastPoint = LatLng(0, 0);
@@ -29,14 +32,53 @@ class _MyAppState extends State<MyApp> {
   String _targetName = "";
 
 
-  void getTargetLatlong() {
-    _lastPoint = LatLng(nameLatLngSet[_targetIndex-1][1], nameLatLngSet[_targetIndex-1][2]);
-    _targetPoint = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
-    print("target name");
-    print(_targetPoint);
-    _targetStr = '${nameLatLngSet[_targetIndex][1]}, ${nameLatLngSet[_targetIndex][2]}';
-    _targetName = nameLatLngSet[_targetIndex][0];
+  Future<void> getTargetLatlong() async {
+    final directory = await getApplicationDocumentsDirectory();
+    print("nameLatLngSet");
+    print(nameLatLngSet);
+    if (nameLatLngSet.length > 2) {
+      _lastPoint = LatLng(nameLatLngSet[_targetIndex - 1][1],
+          nameLatLngSet[_targetIndex - 1][2]);
+      _targetPoint = LatLng(
+          nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
+      print("target name");
+      print(_targetPoint);
+      _targetStr = '${nameLatLngSet[_targetIndex][1].toStringAsFixed(7)},'
+          '${nameLatLngSet[_targetIndex][2].toStringAsFixed(7)}';
+      _targetName = nameLatLngSet[_targetIndex][0];
+    }
   }
+
+  Future<List<List<dynamic>>> readCSV(String path) async {  try {
+    final csvData = await rootBundle.loadString(path);
+    final lines = csvData.split('\n');
+    List<List<dynamic>> data = [];
+    for (var line in lines) {
+      List<dynamic> row = line.split(',');
+      if (row.isNotEmpty && row.length >= 3) {
+
+        row = [
+          row[0],
+          double.tryParse(row[1]) ?? 0.0,
+          double.tryParse(row[2]) ?? 0.0,
+        ];
+        data.add(row);
+      }
+    }
+    if (kDebugMode) {
+      print("csvData");
+      print(csvData);
+    }
+    return data; // Return a 2D List instead of List<String>
+  } catch (e) {
+    if (kDebugMode) {
+      print("Error loading CSV: $e");
+    }
+    return []; // Return an empty list if an error occurs
+  }
+  }
+
+
 
   final TimeController _timeController = TimeController();
   LocationService _locationService = LocationService();
@@ -44,8 +86,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    importData();
     _initLocationStream();
     getTargetLatlong();
+  }
+
+  Future<void> importData() async {
+    nameLatLngSet = await readCSV('assets/pathdata.csv');
   }
 
   void _initLocationStream() {
