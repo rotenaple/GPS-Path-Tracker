@@ -46,4 +46,5 @@ The application requires a CSV file named 'pathdata.csv' placed in the assets di
 - Import CSV: Make sure to place your 'pathdata.csv' file in the assets directory before running the app to visualize the path correctly.
 
 ##Gallery
+
 ![A Screenshot of the application on an Android device.](demo/screenshot.jpg)
