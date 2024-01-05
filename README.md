@@ -17,7 +17,7 @@ The application requires a CSV file named 'pathdata.csv' placed in the assets di
 
 ### The format of the CSV should be as follows
 
-    Checkpoint Name, Latitude, Longitude
+    #Checkpoint Name, Latitude, Longitude
     Origin, lat-origin, long-origin
     Checkpoint1, lat-1, long-1
     Checkpoint2, lat-2, long-2
