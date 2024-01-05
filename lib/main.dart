@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/time_provider.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:latlong2/latlong.dart';
 
 void main() => runApp(MyApp());
 
