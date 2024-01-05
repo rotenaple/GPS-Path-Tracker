@@ -11,6 +11,7 @@ This project is a Flutter-based application that tracks a user's path using GPS 
 - ETA Calculation: Provides an estimated time of arrival to the next checkpoint based on the current speed and distance.
 
 ## CSV Format Requirements
+
 The application requires a CSV file named 'pathdata.csv' placed in the assets directory, each line represents a checkpoint with its name and geographical coordinates (latitude and longitude).
 
 
@@ -25,6 +26,7 @@ The application requires a CSV file named 'pathdata.csv' placed in the assets di
 
 
 ### Below is an example
+
 	Origin (Tonsley), -35.00940099074852, 138.56724570681996
 	Mitchell Park, -35.00201687283244, 138.56664464507801
 	Woodlands Park, -34.9829526878604, 138.56722835848817
