@@ -45,6 +45,6 @@ The application requires a CSV file named 'pathdata.csv' placed in the assets di
 - Run the App: Use flutter run to start the application on a connected device or emulator.
 - Import CSV: Make sure to place your 'pathdata.csv' file in the assets directory before running the app to visualize the path correctly.
 
-##Gallery
+## Gallery
 
 ![A Screenshot of the application on an Android device.](demo/screenshot.jpg)
