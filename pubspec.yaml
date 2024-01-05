@@ -1,5 +1,5 @@
 name: gps_path_tracker
-description: "A new Flutter project."
+description: "GPS Path Tracker is a Flutter project designed to track and display GPS paths. It utilizes the user's location data to provide real-time updates on position, speed, and estimated time of arrival to predefined waypoints."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
