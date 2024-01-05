@@ -38,7 +38,7 @@ The application requires a CSV file named 'pathdata.csv' placed in the assets di
 	Mile End (Destination), -34.92478949709206, 138.58016066198672
 
 
-## Getting Started:
+## Getting Started
 
 - Clone the Repository: Start by cloning the repository to your local machine.
 - Install Dependencies: Run flutter pub get to install the necessary dependencies.
