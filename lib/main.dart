@@ -214,7 +214,7 @@ class _MyAppState extends State<MyApp> {
       width: 200,
       height: 150,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(_timeController.getFormattedTime(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 48)),
