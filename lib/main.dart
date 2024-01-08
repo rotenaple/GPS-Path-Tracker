@@ -17,6 +17,8 @@ class _MyAppState extends State<MyApp> {
   double _currentSpeed = 0;
   double _linearDistance = 0.0;
   String _linearDistanceDisplay = "";
+  double _estDistance = 0.0;
+  String _estDistanceDisplay = "";
   List<List<dynamic>> nameLatLngSet = [];
   int _targetIndex = 1;
   LatLng _lastPoint = const LatLng(0, 0);
@@ -80,8 +82,8 @@ class _MyAppState extends State<MyApp> {
       List<List<dynamic>> data = [];
       for (var line in lines) {
         List<dynamic> row = line.split(',');
-        if (row.isNotEmpty && row.length >= 3) {
-          row = [row[0], double.tryParse(row[1]) ?? 0.0, double.tryParse(row[2]) ?? 0.0];
+        if (row.isNotEmpty && row.length >= 4) {
+          row = [row[0], double.tryParse(row[1]) ?? 0.0, double.tryParse(row[2]) ?? 0.0, double.tryParse(row[3]) ?? 0.0];
           data.add(row);
         }
       }
@@ -90,6 +92,7 @@ class _MyAppState extends State<MyApp> {
       return [];
     }
   }
+
 
   void _updateDisplayInfo() {
     _calculateDistanceDisplay();
@@ -100,7 +103,26 @@ class _MyAppState extends State<MyApp> {
   String _calculateDistanceDisplay() {
     const distance = Distance();
     String unit = "m";
+    double distanceRatio = 0.0;
     _linearDistance = distance(_locationService.currentCentre, _targetPoint);
+    double linearPTPDistance = distance(_lastPoint, _targetPoint);
+    double actualPTPDistance = nameLatLngSet[_targetIndex][3];
+    if (actualPTPDistance != 0){
+      distanceRatio = actualPTPDistance / linearPTPDistance;
+      if (distanceRatio < 1) distanceRatio = 1;
+    }
+
+    _estDistance = _linearDistance * distanceRatio;
+    print("distanceRatio");
+    print("linearPTPDistance");
+    print("actualPTPDistance");
+    print(distanceRatio);
+    print(linearPTPDistance);
+    print(actualPTPDistance);
+    print("_linearDistance");
+    print("_estDistance");
+    print(_linearDistance);
+    print(_estDistance);
 
     if (_targetIndex < nameLatLngSet.length - 1 &&
         distance(_lastPoint, _targetPoint) < distance(_lastPoint, _locationService.currentCentre)) {
@@ -110,12 +132,17 @@ class _MyAppState extends State<MyApp> {
       getTargetLatlong();
     }
 
+
     if (_linearDistance >= 1000) {
       _linearDistanceDisplay = (_linearDistance / 1000).toStringAsFixed(2);
+      _estDistanceDisplay = (_estDistance / 1000).toStringAsFixed(2);
       unit = 'km';
     } else {
       _linearDistanceDisplay = (_linearDistance).toStringAsFixed(0);
+      _estDistanceDisplay = (_estDistance).toStringAsFixed(0);
+
     }
+    _estDistanceDisplay = '$_estDistanceDisplay$unit';
     return '$_linearDistanceDisplay$unit';
   }
 
@@ -258,7 +285,8 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("SPEED", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
-                Text("EST. DISTANCE", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
+                Text("LINEAR DIST.", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
+                Text("EST. DIST.", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
                 Text("EST. ARRIVAL TIME", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
               ],
             ),
@@ -269,6 +297,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               Text(_calculateSpeedDisplay(), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               Text(_calculateDistanceDisplay(), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              Text(_estDistanceDisplay, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
               Text(_calculateEtaDisplay(), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
             ],
           ),
