@@ -7,43 +7,55 @@ This project is a Flutter-based application that tracks a user's path using GPS 
 - Real-Time Location Tracking: Utilizes GPS to fetch and display the user's current latitude and longitude.
 - Speed Calculation: Displays the current speed of the user.
 - Distance Measurement: Calculates and displays the linear distance to the next checkpoint.
-- Path Visualization: Users can import a predefined set of waypoints (checkpoints) through a CSV file to visualize the path they need to follow.
 - ETA Calculation: Provides an estimated time of arrival to the next checkpoint based on the current speed and distance.
 
 ## CSV Format Requirements
 
-The application requires a CSV file named 'pathdata.csv' placed in the assets directory, each line represents a checkpoint with its name and geographical coordinates (latitude and longitude).
+The application currently reads from a CSV file named 'pathdata.csv' placed in the assets directory, each line representing a checkpoint with its name, geographical coordinates (latitude and longitude), and its distance from the last checkpoint (optional).
 
 
 ### The format of the CSV should be as follows
 
-    #Checkpoint Name, Latitude, Longitude
-    Origin, lat-origin, long-origin
-    Checkpoint1, lat-1, long-1
-    Checkpoint2, lat-2, long-2
-    ...
-    Destination, lat-destination, long-destination
+	#Checkpoint Name, Latitude, Longitude, Distance
+	#(Distance is optional and helps calculate the estimated distance to the next checkpoint; replace with "0" if the value is not available.)
+    
+	Origin, lat-origin, long-origin, 0
+	Checkpoint1, lat-1, long-1, dist-to-1
+	Checkpoint2, lat-2, long-2, dist-to-2
+	...
+	Destination, lat-destination, long-destination, dist-to-destination
 
 
-### Below is an example
+### Example (with distance)
 
-	Origin (Tonsley), -35.00940099074852, 138.56724570681996
-	Mitchell Park, -35.00201687283244, 138.56664464507801
-	Woodlands Park, -34.9829526878604, 138.56722835848817
-	Edwardstown, -34.97179781965434, 138.57111153543917
-	Emerson, -34.96630121888577, 138.57368190701837
-	Clarence Park, -34.96092680969005, 138.58031648701203
-	Goodwood, -34.9510196834551, 138.58507035441235
-	Adelaide Showground, -34.94358585065314, 138.58400294719934
-	Mile End (Destination), -34.92478949709206, 138.58016066198672
+	#Checkpoint Name, Latitude, Longitude, Distance
+	Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0
+	Mitchell Park, -35.00201687283244, 138.56664464507801, 900
+	Woodlands Park, -34.9829526878604, 138.56722835848817, 2400
+	Edwardstown, -34.97179781965434, 138.57111153543917, 1200
+	Emerson, -34.96630121888577, 138.57368190701837, 800
+	Clarence Park, -34.96092680969005, 138.58031648701203, 800
+	Goodwood, -34.9510196834551, 138.58507035441235, 1300
+	Adelaide Showground, -34.94358585065314, 138.58400294719934, 1000
+	Mile End (Destination), -34.92478949709206, 138.58016066198672, 2000
 
+### Example (without distance)
 
-## Getting Started
+	#Checkpoint Name, Latitude, Longitude, No Distance
+	Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0
+	Mitchell Park, -35.00201687283244, 138.56664464507801, 0
+	Woodlands Park, -34.9829526878604, 138.56722835848817, 0
+	Edwardstown, -34.97179781965434, 138.57111153543917, 0
+	Emerson, -34.96630121888577, 138.57368190701837, 0
+	Clarence Park, -34.96092680969005, 138.58031648701203, 0
+	Goodwood, -34.9510196834551, 138.58507035441235, 0
+	Adelaide Showground, -34.94358585065314, 138.58400294719934, 0
+	Mile End (Destination), -34.92478949709206, 138.58016066198672, 0
 
-- Clone the Repository: Start by cloning the repository to your local machine.
-- Install Dependencies: Run flutter pub get to install the necessary dependencies.
-- Run the App: Use flutter run to start the application on a connected device or emulator.
-- Import CSV: Make sure to place your 'pathdata.csv' file in the assets directory before running the app to visualize the path correctly.
+## To be Implemented
+
+- Proper permession request prompts to allow users to grant location access in-app.
+- Import CSV feature that allows users to use customized checkpoint tables.
 
 ## Gallery
 
