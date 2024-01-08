@@ -146,7 +146,7 @@ class _MyAppState extends State<MyApp> {
           }
           break;
         case "nearest":
-          _targetIndex = findSecondNearest();
+          _targetIndex = findNextCheckpoint();
           break;
       }
 
@@ -158,7 +158,13 @@ class _MyAppState extends State<MyApp> {
     _updateDisplayInfo();
   }
 
-  int findSecondNearest() {
+  int findNextCheckpoint() {
+
+    // This code finds the 2 nearest checkpoints, then selects the one higher in index.
+    // This assumes a relatively equal spacing of checkpoints,
+    // and therefore the 2 found points are the previous and next checkpoints.
+    // May not work if the spacing of checkpoints are too irregular.
+
     if (nameLatLngSet.length < 2) {
       return 1;
     }
@@ -169,13 +175,14 @@ class _MyAppState extends State<MyApp> {
     for (var point in nameLatLngSet) {
       const distance = Distance();
       LatLng checkpoint = LatLng(point[1], point[2]);
-      double distanceToCurrent = distance(currentLoc,checkpoint);
+      double distanceToCurrent = distance(currentLoc, checkpoint);
       distances.add(distanceToCurrent);
     }
 
     List<int> sortedIndexes = List.generate(distances.length, (i) => i);
     sortedIndexes.sort((a, b) => distances[a].compareTo(distances[b]));
-    return sortedIndexes[1];
+
+    return sortedIndexes[0] > sortedIndexes[1] ? sortedIndexes[0] : sortedIndexes[1];
   }
 
   @override
@@ -272,7 +279,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildButtonDisplay() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // This will space out the buttons equally
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         MaterialButton(
           onPressed: () {
