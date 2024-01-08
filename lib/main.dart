@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   LatLng _targetPoint = const LatLng(0, 0);
   String _targetStr = "";
   String _targetName = "";
+  bool _manuallyIncremented = false;
 
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
@@ -48,18 +49,27 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         _currentLocation = '$latitude, $longitude';
         _currentSpeed = speed;
+        _manuallyIncremented = false;
         _updateDisplayInfo();
       });
     });
   }
 
   Future<void> getTargetLatlong() async {
-    if (nameLatLngSet.length > 2 && _linearDistance < 1000) {
-      _lastPoint = LatLng(nameLatLngSet[_targetIndex - 1][1], nameLatLngSet[_targetIndex - 1][2]);
-      _targetPoint = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
-      _targetStr = '${nameLatLngSet[_targetIndex][1].toStringAsFixed(7)}, ${nameLatLngSet[_targetIndex][2].toStringAsFixed(7)}';
-      _targetName = nameLatLngSet[_targetIndex][0];
+    if (shouldFetchTargetLatlong()) {
+      forceFetchTargetLatlong();
     }
+  }
+
+  bool shouldFetchTargetLatlong() {
+    return nameLatLngSet.length > 2 && _linearDistance < 1000;
+  }
+
+  Future<void> forceFetchTargetLatlong() async {
+    _lastPoint = LatLng(nameLatLngSet[_targetIndex - 1][1], nameLatLngSet[_targetIndex - 1][2]);
+    _targetPoint = LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
+    _targetStr = '${nameLatLngSet[_targetIndex][1].toStringAsFixed(7)}, ${nameLatLngSet[_targetIndex][2].toStringAsFixed(7)}';
+    _targetName = nameLatLngSet[_targetIndex][0];
   }
 
   Future<List<List<dynamic>>> readCSV(String path) async {
@@ -94,7 +104,9 @@ class _MyAppState extends State<MyApp> {
 
     if (_targetIndex < nameLatLngSet.length - 1 &&
         distance(_lastPoint, _targetPoint) < distance(_lastPoint, _locationService.currentCentre)) {
-      _targetIndex++;
+      if (_manuallyIncremented == false){
+        _targetIndex++;
+      }
       getTargetLatlong();
     }
 
@@ -119,6 +131,53 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  void _updateIndex(String select)  {
+    setState(() {
+
+      switch (select) {
+        case "increment":
+          if (_targetIndex < nameLatLngSet.length - 1) {
+            _targetIndex++;
+          }
+          break;
+        case "decrement":
+          if (_targetIndex > 1) {
+            _targetIndex--;
+          }
+          break;
+        case "nearest":
+          _targetIndex = findSecondNearest();
+          break;
+      }
+
+
+      _manuallyIncremented = true;
+    });
+
+    forceFetchTargetLatlong();
+    _updateDisplayInfo();
+  }
+
+  int findSecondNearest() {
+    if (nameLatLngSet.length < 2) {
+      return 1;
+    }
+
+    List<double> distances = [];
+    LatLng currentLoc = _locationService.currentCentre;
+
+    for (var point in nameLatLngSet) {
+      const distance = Distance();
+      LatLng checkpoint = LatLng(point[1], point[2]);
+      double distanceToCurrent = distance(currentLoc,checkpoint);
+      distances.add(distanceToCurrent);
+    }
+
+    List<int> sortedIndexes = List.generate(distances.length, (i) => i);
+    sortedIndexes.sort((a, b) => distances[a].compareTo(distances[b]));
+    return sortedIndexes[1];
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -134,6 +193,7 @@ class _MyAppState extends State<MyApp> {
                 _buildTimeDisplay(),
                 _buildNextCheckpointDisplay(),
                 _buildCurrentStatsDisplay(),
+                _buildButtonDisplay(),
               ],
             ),
           ),
@@ -153,7 +213,7 @@ class _MyAppState extends State<MyApp> {
           Text(_timeController.getFormattedTime(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 48)),
           const Text("CURRENTLY AT", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
           Text(_currentLocation, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-        ],
+       ],
       ),
     );
   }
@@ -207,6 +267,35 @@ class _MyAppState extends State<MyApp> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildButtonDisplay() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // This will space out the buttons equally
+      children: <Widget>[
+        MaterialButton(
+          onPressed: () {
+            _updateIndex("decrement");
+          },
+          color: Colors.blue,
+          child: const Text('PREV', style: TextStyle(color: Colors.white)),
+        ),
+        MaterialButton(
+          onPressed: () {
+            _updateIndex("nearest");
+          },
+          color: Colors.blue,
+          child: const Text('FIND NEAREST', style: TextStyle(color: Colors.white)),
+        ),
+        MaterialButton(
+          onPressed: () {
+            _updateIndex("increment");
+          },
+          color: Colors.blue,
+          child: const Text('NEXT', style: TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }
