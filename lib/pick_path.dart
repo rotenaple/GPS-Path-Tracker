@@ -72,7 +72,7 @@ class PickPath extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose a Path'),
+        title: const Text('Choose an Imported Path'),
       ),
       body: buildFileList(context),
     );
