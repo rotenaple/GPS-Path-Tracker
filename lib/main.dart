@@ -1,13 +1,17 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'dart:io';
 import 'package:gps_path_tracker/location_service.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:gps_path_tracker/pick_path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:gps_path_tracker/time_provider.dart';
 import 'package:latlong2/latlong.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -44,7 +48,52 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> importData() async {
-    nameLatLngSet = await readCSV('assets/pathdata.csv');
+    nameLatLngSet = await ReadCSV().readCSV('assets/pathdata.csv',"asset");
+  }
+
+  Future<void> importCSV() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+
+      final input = await file.readAsString();
+      final lines = input.split('\n');
+      bool csvNoErrors = true;
+
+      for (var line in lines) {
+
+        if (line.trim().isEmpty || line.trim().startsWith('#')) {
+          continue;
+        }
+
+        List<dynamic> row = line.split(',');
+        if (row.length != 4 ||
+            double.tryParse(row[1]) == null ||
+            double.tryParse(row[1])! < -90 ||
+            double.tryParse(row[1])! > 90 ||
+            double.tryParse(row[2]) == null ||
+            double.tryParse(row[2])! < -180 ||
+            double.tryParse(row[2])! > 180 ||
+            double.tryParse(row[3]) == null ||
+            double.tryParse(row[3])! < 0) {
+          csvNoErrors = false;
+          break;
+        }
+      }
+
+      if (csvNoErrors) {
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        String appDocPath = appDocDir.path;
+        final String newFilePath = '$appDocPath/${file.uri.pathSegments.last}';
+        await file.copy(newFilePath);
+      } else {
+      }
+    } else {
+    }
   }
 
   void _initLocationStream() {
@@ -78,32 +127,6 @@ class _MyAppState extends State<MyApp> {
     _targetName = nameLatLngSet[_targetIndex][0];
   }
 
-  Future<List<List<dynamic>>> readCSV(String path) async {
-    try {
-      final csvData = await rootBundle.loadString(path);
-      final lines = csvData.split('\n');
-      if (kDebugMode) {
-        print(lines);
-      }
-      List<List<dynamic>> data = [];
-      for (var line in lines) {
-        List<dynamic> row = line.split(',');
-        if (row.isNotEmpty && row.length >= 4) {
-          row = [
-            row[0],
-            double.tryParse(row[1]) ?? 0.0,
-            double.tryParse(row[2]) ?? 0.0,
-            double.tryParse(row[3]) ?? 0.0
-          ];
-          data.add(row);
-        }
-      }
-      return data;
-    } catch (e) {
-      return [];
-    }
-  }
-
   void _updateDisplayInfo() {
     _calculateDistanceDisplay();
     _calculateSpeedDisplay();
@@ -123,16 +146,6 @@ class _MyAppState extends State<MyApp> {
     }
 
     _estDistance = _linearDistance * distanceRatio;
-    print("distanceRatio");
-    print("linearPTPDistance");
-    print("actualPTPDistance");
-    print(distanceRatio);
-    print(linearPTPDistance);
-    print(actualPTPDistance);
-    print("_linearDistance");
-    print("_estDistance");
-    print(_linearDistance);
-    print(_estDistance);
 
     if (_targetIndex < nameLatLngSet.length - 1 &&
         distance(_lastPoint, _targetPoint) <
@@ -223,32 +236,28 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Builder(
-        builder: (context){
-          return Scaffold(
-            backgroundColor: Colors.white,
-            drawer: _buildDrawer(),
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildMenuIcon(),
-                    _buildTimeDisplay(),
-                    _buildNextCheckpointDisplay(),
-                    _buildCurrentStatsDisplay(),
-                    _buildButtonDisplay(),
-                  ],
-                ),
-              ),
+    return MaterialApp(home: Builder(builder: (context) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        drawer: _buildDrawer(),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildMenuIcon(),
+                _buildTimeDisplay(),
+                _buildNextCheckpointDisplay(),
+                _buildCurrentStatsDisplay(),
+                _buildButtonDisplay(),
+              ],
             ),
-          );
-        }
-      )
-    );
+          ),
+        ),
+      );
+    }));
   }
 
   Widget _buildMenuIcon() {
@@ -284,11 +293,25 @@ class _MyAppState extends State<MyApp> {
                   ),
                   child: _buildDrawerHeader()),
               ListTile(
-                leading: const Icon(Icons.add_box),
+                leading: const Icon(Icons.file_copy),
                 title: const Text('Import Custom Path File'),
                 onTap: () {
-                  // Update the state of the app, then close the drawer
+                  importCSV();
                   Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.add_location),
+                title: const Text('Choose a Path'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final selectedPath = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PickPath()),
+                  );
+                  if (selectedPath != null) {
+                    processSelectedPath(selectedPath);
+                  }
                 },
               ),
               ListTile(
@@ -296,7 +319,7 @@ class _MyAppState extends State<MyApp> {
                 title: const Text('Toggle Manual Checkpoint Selection'),
                 onTap: () {
                   _toggleNavButtonVisibility();
-                  Navigator.pop(context); // Close the drawer
+                  Navigator.pop(context);
                 },
               ),
             ],
@@ -306,7 +329,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _toggleNavButtonVisibility() async{
+  void _toggleNavButtonVisibility() async {
     setState(() {
       _buttonVisibility = !_buttonVisibility;
     });
@@ -340,7 +363,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget _buildDrawerHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -491,5 +514,17 @@ class _MyAppState extends State<MyApp> {
             ),
           ],
         ));
+  }
+
+  void processSelectedPath(String path) async {
+    // Process the file at the given path
+    // For example, read the CSV, update the state, etc.
+    var newData = await ReadCSV().readCSV(path,"path");
+    setState(() {
+      nameLatLngSet = newData;
+      _targetIndex = 1;
+    });
+    forceFetchTargetLatlong();
+    _updateDisplayInfo();
   }
 }
