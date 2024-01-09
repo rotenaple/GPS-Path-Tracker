@@ -8,10 +8,13 @@ This project is a Flutter-based application that tracks a user's path using GPS 
 - Speed Calculation: Displays the current speed of the user.
 - Distance Measurement: Calculates and displays the linear distance to the next checkpoint.
 - ETA Calculation: Provides an estimated time of arrival to the next checkpoint based on the current speed and distance.
+- Manual Checkpoint Selection: You can manually choose the next checkpoint. 
+
+NB: The app typically updates checkpoints automatically. Manual selection is only recommended when the current checkpoint is passed by over 1 km. The "Find Nearest" feature attempts to find the two closest checkpoints, but it may not always be entirely accurate.
 
 ## CSV Format Requirements
 
-The application currently reads from a CSV file named 'pathdata.csv' placed in the assets directory, each line representing a checkpoint with its name, geographical coordinates (latitude and longitude), and its distance from the last checkpoint (optional).
+The application by default reads from a CSV path file named "pathdata.csv" placed in the "assets" directory, each line representing a checkpoint with its name, geographical coordinates (latitude and longitude), and optionally its distance from the previous checkpoint (in metres). Users can import and use custom path files that adhere by the required formatting.
 
 
 ### The format of the CSV should be as follows
@@ -28,7 +31,7 @@ The application currently reads from a CSV file named 'pathdata.csv' placed in t
 
 ### Example (with distance)
 
-	#Checkpoint Name, Latitude, Longitude, Distance
+	#Checkpoint Name, Latitude, Longitude, Distance (metres)
 	Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0
 	Mitchell Park, -35.00201687283244, 138.56664464507801, 900
 	Woodlands Park, -34.9829526878604, 138.56722835848817, 2400
@@ -55,8 +58,10 @@ The application currently reads from a CSV file named 'pathdata.csv' placed in t
 ## To be Implemented
 
 - Proper permession request prompts to allow users to grant location access in-app.
-- Import CSV feature that allows users to use customized checkpoint tables.
 
 ## Gallery
 
-![A Screenshot of the application on an Android device.](demo/screenshot.jpg)
+![A Screenshot of the application.](demo/screenshot1.jpg)
+![A Screenshot of the settings panel.](demo/screenshot2.jpg)
+![A Screenshot of the application with the manual toggle buttons enabled.](demo/screenshot3.jpg)
+![A Screenshot of the "Choose imported Path" screen.](demo/screenshot4.jpg)
