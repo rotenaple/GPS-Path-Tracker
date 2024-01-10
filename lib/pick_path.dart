@@ -6,13 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ReadCSV {
-  Future<List<List<dynamic>>> readCSV(String path, String source) async {
+  String _pathName = "Unnamed Path";
+  late (Future<List<List<dynamic>>>, int) record;
+
+
+  Future<(List<List<dynamic>>, String)> readCSV(String path, String source) async {
     String csvData;
     if (source == "asset") {
-      // Load from assets
       csvData = await rootBundle.loadString(path);
     } else {
-      // Load from file system
       final file = File(path);
       csvData = await file.readAsString();
     }
@@ -24,6 +26,11 @@ class ReadCSV {
 
     List<List<dynamic>> data = [];
     for (var line in lines) {
+
+      if (line.trim().startsWith('##')) {
+        _pathName = line.substring(2).trim();
+        continue;
+      }
 
       if (line.trim().isEmpty || line.trim().startsWith('#')) {
         continue;
@@ -40,7 +47,7 @@ class ReadCSV {
         data.add(row);
       }
     }
-    return data;
+    return (data,_pathName);
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:gps_path_tracker/location_service.dart';
+import 'package:gps_path_tracker/pick_path.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:gps_path_tracker/pick_path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,6 +30,7 @@ class _MyAppState extends State<MyApp> {
   LatLng _targetPoint = const LatLng(0, 0);
   String _targetStr = "";
   String _targetName = "";
+  String _pathName = "";
   bool _manuallyIncremented = false;
   bool _buttonVisibility = false;
   bool _isLoading = true;
@@ -44,13 +46,15 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initApp() async {
     await importData();
+    _isLoading = false;
     _initLocationStream();
     await getTargetLatlong();
-    _isLoading = false;
   }
 
   Future<void> importData() async {
-    nameLatLngSet = await ReadCSV().readCSV('assets/pathdata.csv', "asset");
+    var returnValue = await ReadCSV().readCSV('assets/pathdata.csv', "asset");
+    nameLatLngSet = returnValue.$1;
+    _pathName = returnValue.$2;
   }
 
   Future<void> importCSV() async {
@@ -269,7 +273,10 @@ class _MyAppState extends State<MyApp> {
   void processSelectedPath(String path) async {
     // Process the file at the given path
     // For example, read the CSV, update the state, etc.
-    var newData = await ReadCSV().readCSV(path, "path");
+
+    var returnValue = await ReadCSV().readCSV('assets/pathdata.csv', "path");
+    var newData = returnValue.$1;
+    _pathName = returnValue.$2;
     setState(() {
       nameLatLngSet = newData;
       _targetIndex = 1;
@@ -282,7 +289,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Builder(
-        builder: (context) => _isLoading ? _buildLoading() : _buildUIFramework(context),
+        builder: (context) =>
+            _isLoading ? _buildLoading() : _buildUIFramework(context),
       ),
     );
   }
@@ -335,7 +343,7 @@ class _MyAppState extends State<MyApp> {
                     Visibility(
                       visible: !isHorizontal,
                       child: const SizedBox(
-                        height: 125,
+                        height: 80,
                         width: 200,
                       ),
                     ),
@@ -364,7 +372,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-
 
   Widget _buildMenuIcon() {
     return Builder(
@@ -461,7 +468,7 @@ class _MyAppState extends State<MyApp> {
   Widget _buildTimeDisplay() {
     return SizedBox(
       width: 200,
-      height: 120,
+      height: 140,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -469,6 +476,10 @@ class _MyAppState extends State<MyApp> {
           Text(_timeController.getFormattedTime(),
               style:
                   const TextStyle(fontWeight: FontWeight.w700, fontSize: 48)),
+          Text(_pathName.toUpperCase(),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SizedBox(width: 200, height: 2),
           const Text("CURRENTLY AT",
               style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
           Text(_currentLocation,
