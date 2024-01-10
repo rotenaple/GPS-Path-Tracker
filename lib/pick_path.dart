@@ -1,55 +1,7 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-
-class ReadCSV {
-  String _pathName = "Unnamed Path";
-  late (Future<List<List<dynamic>>>, int) record;
-
-
-  Future<(List<List<dynamic>>, String)> readCSV(String path, String source) async {
-    String csvData;
-    if (source == "asset") {
-      csvData = await rootBundle.loadString(path);
-    } else {
-      final file = File(path);
-      csvData = await file.readAsString();
-    }
-
-    final lines = csvData.split('\n');
-    if (kDebugMode) {
-      print(lines);
-    }
-
-    List<List<dynamic>> data = [];
-    for (var line in lines) {
-
-      if (line.trim().startsWith('##')) {
-        _pathName = line.substring(2).trim();
-        continue;
-      }
-
-      if (line.trim().isEmpty || line.trim().startsWith('#')) {
-        continue;
-      }
-
-      List<dynamic> row = line.split(',');
-      if (row.isNotEmpty && row.length >= 4) {
-        row = [
-          row[0],  // Assuming the first column is a String
-          double.tryParse(row[1]) ?? 0.0,  // Latitude
-          double.tryParse(row[2]) ?? 0.0,  // Longitude
-          double.tryParse(row[3]) ?? 0.0   // Some other numeric value
-        ];
-        data.add(row);
-      }
-    }
-    return (data,_pathName);
-  }
-}
 
 class FileDetails {
   final File file;
@@ -75,7 +27,9 @@ class PickPath extends StatelessWidget {
     return fileDetails;
   }
 
+
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -108,7 +62,8 @@ class PickPath extends StatelessWidget {
     );
   }
 
-  Widget buildFileCard(FileDetails fileDetail, String fileName, BuildContext context) {
+  Widget buildFileCard(
+      FileDetails fileDetail, String fileName, BuildContext context) {
     return InkWell(
       onTap: () {
         Navigator.pop(context, fileDetail.file.path);
@@ -119,8 +74,10 @@ class PickPath extends StatelessWidget {
     );
   }
 
-  ListTile buildListTile(FileDetails fileDetail, String fileName, BuildContext context) {
-    final addedDate = DateFormat('dd MMM yyyy kk:mm').format(fileDetail.addedDate);
+  ListTile buildListTile(
+      FileDetails fileDetail, String fileName, BuildContext context) {
+    final addedDate =
+        DateFormat('dd MMM yyyy kk:mm').format(fileDetail.addedDate);
     return ListTile(
       leading: const Icon(Icons.map),
       title: Text(fileName),
@@ -155,6 +112,7 @@ class PickPath extends StatelessWidget {
               TextButton(
                 onPressed: () async {
                   await fileDetail.file.delete();
+                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 child: const Text('Delete'),

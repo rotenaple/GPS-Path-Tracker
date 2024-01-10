@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/pick_path.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:gps_path_tracker/pick_path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:gps_path_tracker/time_provider.dart';
+import 'package:gps_path_tracker/csv.dart';
+
 import 'package:latlong2/latlong.dart';
 
 void main() => runApp(const MyApp());
@@ -52,52 +50,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> importData() async {
-    var returnValue = await ReadCSV().readCSV('assets/pathdata.csv', "asset");
+    var returnValue = await ParseCSV().readCSV('assets/pathdata.csv', "asset");
     nameLatLngSet = returnValue.$1;
     _pathName = returnValue.$2;
   }
 
-  Future<void> importCSV() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv'],
-    );
 
-    if (result != null) {
-      File file = File(result.files.single.path!);
-
-      final input = await file.readAsString();
-      final lines = input.split('\n');
-      bool csvNoErrors = true;
-
-      for (var line in lines) {
-        if (line.trim().isEmpty || line.trim().startsWith('#')) {
-          continue;
-        }
-
-        List<dynamic> row = line.split(',');
-        if (row.length != 4 ||
-            double.tryParse(row[1]) == null ||
-            double.tryParse(row[1])! < -90 ||
-            double.tryParse(row[1])! > 90 ||
-            double.tryParse(row[2]) == null ||
-            double.tryParse(row[2])! < -180 ||
-            double.tryParse(row[2])! > 180 ||
-            double.tryParse(row[3]) == null ||
-            double.tryParse(row[3])! < 0) {
-          csvNoErrors = false;
-          break;
-        }
-      }
-
-      if (csvNoErrors) {
-        Directory appDocDir = await getApplicationDocumentsDirectory();
-        String appDocPath = appDocDir.path;
-        final String newFilePath = '$appDocPath/${file.uri.pathSegments.last}';
-        await file.copy(newFilePath);
-      }
-    }
-  }
 
   void _initLocationStream() {
     _locationService.initLocationStream((latitude, longitude, speed) {
@@ -127,7 +85,7 @@ class _MyAppState extends State<MyApp> {
         LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
     _targetStr =
         '${nameLatLngSet[_targetIndex][1].toStringAsFixed(7)}, ${nameLatLngSet[_targetIndex][2].toStringAsFixed(7)}';
-    _targetName = nameLatLngSet[_targetIndex][0];
+    _targetName = "$_targetIndex " + nameLatLngSet[_targetIndex][0];
   }
 
   void _updateDisplayInfo() {
@@ -178,7 +136,7 @@ class _MyAppState extends State<MyApp> {
   String _calculateEtaDisplay() {
     if (_currentSpeed > 0.0) {
       return GetFutureTime()
-          .getFutureTime((_linearDistance / _currentSpeed * 3.6).toInt());
+          .getFutureTime((_estDistance / _currentSpeed * 3.6).toInt());
     } else {
       return "N/A";
     }
@@ -271,10 +229,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   void processSelectedPath(String path) async {
-    // Process the file at the given path
-    // For example, read the CSV, update the state, etc.
-
-    var returnValue = await ReadCSV().readCSV('assets/pathdata.csv', "path");
+    var returnValue = await ParseCSV().readCSV(path, "path");
+    print(returnValue);
     var newData = returnValue.$1;
     _pathName = returnValue.$2;
     setState(() {
@@ -343,7 +299,7 @@ class _MyAppState extends State<MyApp> {
                     Visibility(
                       visible: !isHorizontal,
                       child: const SizedBox(
-                        height: 80,
+                        height: 100,
                         width: 200,
                       ),
                     ),
@@ -410,7 +366,7 @@ class _MyAppState extends State<MyApp> {
                 leading: const Icon(Icons.file_copy),
                 title: const Text('Import Custom Path File'),
                 onTap: () {
-                  importCSV();
+                  ParseCSV().importCSV();
                   Navigator.pop(context);
                 },
               ),
