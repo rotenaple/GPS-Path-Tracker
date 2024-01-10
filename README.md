@@ -18,7 +18,7 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 
 
 ### The format of the CSV should be as follows
-
+	##Name of Path
 	#Checkpoint Name, Latitude, Longitude, Distance
 	#(Distance is optional and helps calculate the estimated distance to the next checkpoint; replace with "0" if the value is not available.)
     
@@ -31,6 +31,7 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 
 ### Example (with distance)
 
+	##Tonsley to Mile End
 	#Checkpoint Name, Latitude, Longitude, Distance (metres)
 	Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0
 	Mitchell Park, -35.00201687283244, 138.56664464507801, 900
@@ -44,6 +45,7 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 
 ### Example (without distance)
 
+	##Tonsley to Mile End
 	#Checkpoint Name, Latitude, Longitude, No Distance
 	Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0
 	Mitchell Park, -35.00201687283244, 138.56664464507801, 0
