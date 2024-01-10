@@ -31,6 +31,7 @@ class _MyAppState extends State<MyApp> {
   String _targetName = "";
   bool _manuallyIncremented = false;
   bool _buttonVisibility = false;
+  bool _isLoading = true;
 
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
@@ -45,6 +46,7 @@ class _MyAppState extends State<MyApp> {
     await importData();
     _initLocationStream();
     await getTargetLatlong();
+    _isLoading = false;
   }
 
   Future<void> importData() async {
@@ -278,60 +280,91 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    bool isHorizontal =
-        MediaQuery.of(context).orientation == Orientation.landscape;
     return MaterialApp(
       home: Builder(
-        builder: (context) {
-          return Scaffold(
-              backgroundColor: Colors.white,
-              drawer: _buildDrawer(),
-              body: Stack(
-                children: [
-                  _buildMenuIcon(),
-                  Flex(
-                    direction: isHorizontal ? Axis.horizontal : Axis.vertical,
-                    children: [
-                      Flexible(
-                        flex: isHorizontal ? 1 : 0,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Visibility(
-                              visible: isHorizontal ? false : true,
-                              child: const SizedBox(
-                                height: 125,
-                                width: 200,
-                              ),
-                            ),
-                            _buildTimeDisplay(),
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        flex: isHorizontal ? 2 : 1,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 25, 20, 5),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildNextCheckpointDisplay(),
-                              _buildCurrentStatsDisplay(),
-                              _buildButtonDisplay(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ));
-        },
+        builder: (context) => _isLoading ? _buildLoading() : _buildUIFramework(context),
       ),
     );
   }
+
+  Widget _buildLoading() {
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(
+                  strokeWidth: 6,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            Text("Loading")
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUIFramework(BuildContext context) {
+    bool isHorizontal =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      drawer: _buildDrawer(),
+      body: Stack(
+        children: [
+          _buildMenuIcon(),
+          Flex(
+            direction: isHorizontal ? Axis.horizontal : Axis.vertical,
+            children: [
+              Flexible(
+                flex: isHorizontal ? 1 : 0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Visibility(
+                      visible: !isHorizontal,
+                      child: const SizedBox(
+                        height: 125,
+                        width: 200,
+                      ),
+                    ),
+                    _buildTimeDisplay(),
+                  ],
+                ),
+              ),
+              Flexible(
+                flex: isHorizontal ? 2 : 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 25, 20, 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildNextCheckpointDisplay(),
+                      _buildCurrentStatsDisplay(),
+                      _buildButtonDisplay(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildMenuIcon() {
     return Builder(
