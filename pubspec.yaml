@@ -47,4 +47,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/pathdata.csv
+  fonts:
+    - family: DMSans
+      fonts:
+       - asset: assets/fonts/DMSans-w500.ttf
+       - asset: assets/fonts/DMSans-w600.ttf
+       - asset: assets/fonts/DMSans-w700.ttf
   # Add any other asset, image, or font files here.

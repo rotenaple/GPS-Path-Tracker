@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 class TimeUpdater {
   Stream<DateTime> getTimeStream() {
     return Stream<DateTime>.periodic(
-      Duration(seconds: 10),
+      const Duration(seconds: 10),
           (count) => DateTime.now(),
     );
   }

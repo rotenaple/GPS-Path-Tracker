@@ -3,7 +3,7 @@ import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/pick_path.dart';
 import 'package:gps_path_tracker/time_provider.dart';
 import 'package:gps_path_tracker/csv.dart';
-
+import 'package:gps_path_tracker/theme.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() => runApp(const MyApp());
@@ -32,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   bool _manuallyIncremented = false;
   bool _buttonVisibility = false;
   bool _isLoading = true;
+  bool _manualWarning = true;
 
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
@@ -54,8 +55,6 @@ class _MyAppState extends State<MyApp> {
     nameLatLngSet = returnValue.$1;
     _pathName = returnValue.$2;
   }
-
-
 
   void _initLocationStream() {
     _locationService.initLocationStream((latitude, longitude, speed) {
@@ -85,7 +84,7 @@ class _MyAppState extends State<MyApp> {
         LatLng(nameLatLngSet[_targetIndex][1], nameLatLngSet[_targetIndex][2]);
     _targetStr =
         '${nameLatLngSet[_targetIndex][1].toStringAsFixed(7)}, ${nameLatLngSet[_targetIndex][2].toStringAsFixed(7)}';
-    _targetName = "$_targetIndex " + nameLatLngSet[_targetIndex][0];
+    _targetName = "$_targetIndex ${nameLatLngSet[_targetIndex][0]}";
   }
 
   void _updateDisplayInfo() {
@@ -199,38 +198,10 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _buttonVisibility = !_buttonVisibility;
     });
-
-    //Popup confirmation not functional, throws "No MaterialLocalizations Found" error
-
-    /*final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: const Text('Are you sure you want to toggle?'),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            TextButton(
-              child: const Text('Yes', style: TextStyle(color: Colors.red)),
-              onPressed: () => Navigator.of(context).pop(true),
-            )
-          ],
-        );
-      },
-    );
-
-    if (confirmed == true) {
-      setState(() {
-        _buttonVisibility = !_buttonVisibility;
-      });
-    }*/
   }
 
   void processSelectedPath(String path) async {
     var returnValue = await ParseCSV().readCSV(path, "path");
-    print(returnValue);
     var newData = returnValue.$1;
     _pathName = returnValue.$2;
     setState(() {
@@ -253,7 +224,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildLoading() {
     return const Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundColour,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -266,11 +237,14 @@ class _MyAppState extends State<MyApp> {
                 height: 40,
                 child: CircularProgressIndicator(
                   strokeWidth: 6,
-                  color: Colors.black,
+                  color: AppTheme.primaryColour,
                 ),
               ),
             ),
-            Text("Loading")
+            Text(
+              "Loading",
+              style: TextStyle(color: AppTheme.textColour),
+            )
           ],
         ),
       ),
@@ -282,11 +256,11 @@ class _MyAppState extends State<MyApp> {
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundColour,
       drawer: _buildDrawer(),
       body: Stack(
         children: [
-          _buildMenuIcon(),
+          _buildTopLeftMenuIcon(),
           Flex(
             direction: isHorizontal ? Axis.horizontal : Axis.vertical,
             children: [
@@ -299,7 +273,7 @@ class _MyAppState extends State<MyApp> {
                     Visibility(
                       visible: !isHorizontal,
                       child: const SizedBox(
-                        height: 100,
+                        height: 92,
                         width: 200,
                       ),
                     ),
@@ -317,7 +291,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       _buildNextCheckpointDisplay(),
                       _buildCurrentStatsDisplay(),
-                      _buildButtonDisplay(),
+                      _buildNavButtonDisplay(),
                     ],
                   ),
                 ),
@@ -329,7 +303,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _buildMenuIcon() {
+  Widget _buildTopLeftMenuIcon() {
     return Builder(
       builder: (BuildContext context) {
         return Positioned(
@@ -341,7 +315,7 @@ class _MyAppState extends State<MyApp> {
               onPressed: () => Scaffold.of(context).openDrawer(),
               icon: const Icon(
                 Icons.menu,
-                color: Color(0xff000000),
+                color: AppTheme.textColour,
               ),
             ),
           ),
@@ -354,47 +328,84 @@ class _MyAppState extends State<MyApp> {
     return Builder(
       builder: (context) {
         return Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
+            child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  DrawerHeader(
+                    decoration: const BoxDecoration(
+                      color: AppTheme.primaryColour,
+                    ),
+                    child: _buildDrawerHeader(),
                   ),
-                  child: _buildDrawerHeader()),
-              ListTile(
-                leading: const Icon(Icons.file_copy),
-                title: const Text('Import Custom Path File'),
-                onTap: () {
-                  ParseCSV().importCSV();
-                  Navigator.pop(context);
-                },
+                  ListTile(
+                    leading: const Icon(
+                      Icons.file_copy,
+                      color: AppTheme.iconColor,
+                    ),
+                    title: const Text(
+                      'Import Custom Path File',
+                      style: AppTheme.listItemTextStyle,
+                    ),
+                    onTap: () {
+                      ParseCSV().importCSV();
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.add_location,
+                      color: AppTheme.iconColor,
+                    ),
+                    title: const Text(
+                      'Choose a Path',
+                      style: AppTheme.listItemTextStyle,
+                    ),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final selectedPath = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PickPath()),
+                      );
+                      processSelectedPath(selectedPath);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.settings,
+                      color: AppTheme.iconColor,
+                    ),
+                    title: const Text(
+                      'Toggle Manual Checkpoint Selection',
+                      style: AppTheme.listItemTextStyle,
+                    ),
+                    onTap: () {
+                      _toggleNavButtonVisibility();
+                      Navigator.pop(context);
+                      if (_manualWarning == true) {
+                        AppTheme.showSnackbar(
+                            context,
+                            'App usually auto-updates checkpoints, '
+                            'manual selection is only advised if over 1km past current point. '
+                            '\'Find Nearest\' may not always be precise.');
+                        _manualWarning = false;
+                      }
+                    },
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.add_location),
-                title: const Text('Choose a Path'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final selectedPath = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PickPath()),
-                  );
-                  if (selectedPath != null) {
-                    processSelectedPath(selectedPath);
-                  }
-                },
+            ),
+            const Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Text(
+                'by rotenaple & yuwei95123, 2024',
+                style: AppTheme.creditTextStyle,
               ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Toggle Manual Checkpoint Selection'),
-                onTap: () {
-                  _toggleNavButtonVisibility();
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
+            ),
+          ],
+        ));
       },
     );
   }
@@ -405,17 +416,11 @@ class _MyAppState extends State<MyApp> {
       children: [
         Text(
           'GPS Path Tracker',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-          ),
+          style: AppTheme.headerStyle,
         ),
         Text(
           'for Flinders University, \nWorld Solar Challenge',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: AppTheme.subtitleStyle,
         ),
       ],
     );
@@ -429,18 +434,23 @@ class _MyAppState extends State<MyApp> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(_timeController.getFormattedTime(),
-              style:
-                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 48)),
-          Text(_pathName.toUpperCase(),
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(
+            _timeController.getFormattedTime(),
+            style: AppTheme.h1,
+          ),
+          Text(
+            _pathName.toUpperCase(),
+            style: AppTheme.boldTextStyle,
+          ),
           const SizedBox(width: 200, height: 2),
-          const Text("CURRENTLY AT",
-              style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
-          Text(_currentLocation,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const Text(
+            "CURRENTLY AT",
+            style: AppTheme.normalTextStyle,
+          ),
+          Text(
+            _currentLocation,
+            style: AppTheme.boldTextStyle,
+          ),
         ],
       ),
     );
@@ -449,24 +459,18 @@ class _MyAppState extends State<MyApp> {
   Widget _buildNextCheckpointDisplay() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-      child: Container(
-        width: 200,
-        height: 100,
-        decoration: BoxDecoration(
-            color: const Color(0x1f000000),
-            border: Border.all(color: const Color(0x4d9e9e9e), width: 1)),
+      child: AppTheme.styledContainer(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text("NEXT CHECKPOINT",
-                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14)),
-            Text(_targetName,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 24)),
-            Text(_targetStr,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            const Text("NEXT CHECKPOINT", style: AppTheme.normalTextStyle),
+            Text(
+              _targetName,
+              style: AppTheme.h2,
+              textAlign: TextAlign.center,
+            ),
+            Text(_targetStr, style: AppTheme.boldTextStyle),
           ],
         ),
       ),
@@ -475,95 +479,68 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildCurrentStatsDisplay() {
     return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-        child: Container(
-          width: 200,
-          height: 100,
-          decoration: BoxDecoration(
-              color: const Color(0x1f000000),
-              border: Border.all(color: const Color(0x4d9e9e9e), width: 1)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 12, 0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("SPEED",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 14)),
-                    Text("LINEAR DIST.",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 14)),
-                    Text("EST. DIST.",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 14)),
-                    Text("EST. ARRIVAL TIME",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400, fontSize: 14)),
-                  ],
-                ),
-              ),
-              Column(
+      padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+      child: AppTheme.styledContainer(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 12, 0),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_calculateSpeedDisplay(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(_calculateDistanceDisplay(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(_estDistanceDisplay,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(_calculateEtaDisplay(),
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text("SPEED", style: AppTheme.normalTextStyle),
+                  Text("LINEAR DIST.", style: AppTheme.normalTextStyle),
+                  Text("EST. DIST.", style: AppTheme.normalTextStyle),
+                  Text("EST. ARRIVAL TIME", style: AppTheme.normalTextStyle),
                 ],
               ),
-            ],
-          ),
-        ));
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_calculateSpeedDisplay(), style: AppTheme.boldTextStyle),
+                Text(_calculateDistanceDisplay(),
+                    style: AppTheme.boldTextStyle),
+                Text(_estDistanceDisplay, style: AppTheme.boldTextStyle),
+                Text(_calculateEtaDisplay(), style: AppTheme.boldTextStyle),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildButtonDisplay() {
+  Widget _buildNavButtonDisplay() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 5, 0, 15),
       child: Visibility(
-          visible: _buttonVisibility,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              MaterialButton(
-                onPressed: () {
-                  _updateIndex("decrement");
-                },
-                color: Colors.blue,
-                child:
-                    const Text('PREV', style: TextStyle(color: Colors.white)),
-              ),
-              MaterialButton(
-                onPressed: () {
-                  _updateIndex("nearest");
-                },
-                color: Colors.blue,
-                child: const Text('FIND NEAREST',
-                    style: TextStyle(color: Colors.white)),
-              ),
-              MaterialButton(
-                onPressed: () {
-                  _updateIndex("increment");
-                },
-                color: Colors.blue,
-                child:
-                    const Text('NEXT', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          )),
+        visible: _buttonVisibility,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () => _updateIndex("decrement"),
+              style: AppTheme.primaryButtonStyle,
+              child: const Text('PREV'),
+            ),
+            ElevatedButton(
+              onPressed: () => _updateIndex("nearest"),
+              style: AppTheme.primaryButtonStyle,
+              child: const Text('FIND NEAREST'),
+            ),
+            ElevatedButton(
+              onPressed: () => _updateIndex("increment"),
+              style: AppTheme.primaryButtonStyle,
+              child: const Text('NEXT'),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

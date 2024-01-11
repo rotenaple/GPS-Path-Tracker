@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gps_path_tracker/theme.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -11,6 +12,8 @@ class FileDetails {
 }
 
 class PickPath extends StatelessWidget {
+  const PickPath({super.key});
+
   Future<List<FileDetails>> listCsvFiles() async {
     final directory = await getApplicationDocumentsDirectory();
     final files = directory.listSync();
@@ -33,7 +36,7 @@ class PickPath extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose an Imported Path'),
+        title: const Text('Choose an Imported Path', style: AppTheme.h3,),
       ),
       body: buildFileList(context),
     );
@@ -62,26 +65,24 @@ class PickPath extends StatelessWidget {
     );
   }
 
-  Widget buildFileCard(
-      FileDetails fileDetail, String fileName, BuildContext context) {
+  Widget buildFileCard(FileDetails fileDetail, String fileName, BuildContext context) {
     return InkWell(
       onTap: () {
         Navigator.pop(context, fileDetail.file.path);
       },
       child: Card(
+        color: AppTheme.flindersDust,
         child: buildListTile(fileDetail, fileName, context),
       ),
     );
   }
 
-  ListTile buildListTile(
-      FileDetails fileDetail, String fileName, BuildContext context) {
-    final addedDate =
-        DateFormat('dd MMM yyyy kk:mm').format(fileDetail.addedDate);
+  ListTile buildListTile(FileDetails fileDetail, String fileName, BuildContext context) {
+    final addedDate = DateFormat('dd MMM yyyy kk:mm').format(fileDetail.addedDate);
     return ListTile(
-      leading: const Icon(Icons.map),
-      title: Text(fileName),
-      subtitle: Text(addedDate),
+      leading: const Icon(Icons.map, color: AppTheme.iconColor),
+      title: Text(fileName, style: AppTheme.listItemTextStyle),
+      subtitle: Text(addedDate, style: AppTheme.listItemTextStyle),
       trailing: buildTrailingIcons(fileDetail, context),
     );
   }
@@ -97,30 +98,32 @@ class PickPath extends StatelessWidget {
 
   IconButton buildDeleteButton(FileDetails fileDetail, BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.delete),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Delete File'),
-            content: const Text('Are you sure you want to delete this file?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context), // Cancel deletion
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  await fileDetail.file.delete();
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-                child: const Text('Delete'),
-              ),
-            ],
+      icon: const Icon(Icons.delete, color: AppTheme.iconColor), // Updated to use AppTheme
+      onPressed: () => showDeleteDialog(fileDetail, context),
+    );
+  }
+
+  void showDeleteDialog(FileDetails fileDetail, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete File', style: AppTheme.dialogTitleStyle), // Update style
+        content: const Text('Are you sure you want to delete this file?', style: AppTheme.dialogContentStyle), // Update style
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: AppTheme.dialogButtonStyle), // Update style
           ),
-        );
-      },
+          TextButton(
+            onPressed: () async {
+              await fileDetail.file.delete();
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text('Delete', style: AppTheme.dialogAlertButtonStyle), // Update style
+          ),
+        ],
+      ),
     );
   }
 }

@@ -3,11 +3,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class LocationService {
-  LatLng currentCentre = LatLng(0, 0);
+  LatLng currentCentre = const LatLng(0, 0);
   double currentSpeed = 0.0;
 
   Future<void> initLocationStream(Function(double, double, double) onLocationUpdate) async {
-    final LocationSettings locationSettings = LocationSettings(
+    const LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 1,
     );
