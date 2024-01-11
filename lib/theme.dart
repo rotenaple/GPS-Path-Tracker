@@ -57,12 +57,14 @@ class AppTheme {
   static const TextStyle h2 = TextStyle(
     fontWeight: FontWeight.w600,
     fontSize: 24,
+    color: AppTheme.textColour,
     fontFamily: 'DMSans',
   );
 
   static const TextStyle h3 = TextStyle(
     fontWeight: FontWeight.w600,
     fontSize: 18,
+    color: AppTheme.textColour,
     fontFamily: 'DMSans',
   );
 
