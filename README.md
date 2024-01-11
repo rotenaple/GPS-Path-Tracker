@@ -63,7 +63,4 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 
 ## Gallery
 
-![A Screenshot of the application.](demo/screenshot1.jpg)
-![A Screenshot of the settings panel.](demo/screenshot2.jpg)
-![A Screenshot of the application with the manual toggle buttons enabled.](demo/screenshot3.jpg)
-![A Screenshot of the "Choose imported Path" screen.](demo/screenshot4.jpg)
+![A Screenshot of the application.](demo/screenshot.png)
