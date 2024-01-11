@@ -54,9 +54,9 @@ class _MyAppState extends State<MyApp> {
       _initLocationStream();
       getTargetLatlong();
     } else {
-        setState(() {
-          _isLoading = "failed";
-        });
+      setState(() {
+        _isLoading = "failed";
+      });
     }
   }
 
@@ -227,12 +227,11 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Builder(
-        builder: (context) =>
-        _isLoading == "true"
+        builder: (context) => _isLoading == "true"
             ? _buildLoading()
             : _isLoading == "failed"
-            ? _buildFailed()
-            : _buildUIFramework(context),
+                ? _buildFailed()
+                : _buildUIFramework(context),
       ),
     );
   }
@@ -268,7 +267,6 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildFailed() {
     return Scaffold(
-
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -279,10 +277,12 @@ class _MyAppState extends State<MyApp> {
               size: 64,
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Location access is required \nfor this app to function properly.',
-              textAlign: TextAlign.center,
-              style: AppTheme.dialogContentStyle,
+            const Padding(padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+              child: Text(
+                'Permission to use precise location is required for this app to function properly.',
+                textAlign: TextAlign.center,
+                style: AppTheme.dialogContentStyle,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -291,7 +291,8 @@ class _MyAppState extends State<MyApp> {
                 exit(0);
               },
               style: AppTheme.primaryButtonStyle,
-              child: const Text('Go to Settings', style: AppTheme.dialogButtonStyle),
+              child: const Text('OPEN SETTINGS',
+                  style: AppTheme.dialogButtonStyle),
             ),
             const SizedBox(height: 8),
             ElevatedButton(
@@ -299,7 +300,7 @@ class _MyAppState extends State<MyApp> {
                 exit(0);
               },
               style: AppTheme.primaryButtonStyle,
-              child: const Text('Close App', style: AppTheme.dialogButtonStyle),
+              child: const Text('QUIT APP', style: AppTheme.dialogButtonStyle),
             ),
           ],
         ),
@@ -405,9 +406,16 @@ class _MyAppState extends State<MyApp> {
                       'Import Custom Path File',
                       style: AppTheme.listItemTextStyle,
                     ),
-                    onTap: () {
-                      ParseCSV().importCSV();
+                    onTap: () async {
+                      Future<(int, int, String)> result;
+                      result = ParseCSV().importCSV();
+                      (int, int, String) actualResult = await result;
                       Navigator.pop(context);
+
+                      if (actualResult.$1 != -1) {
+                        AppTheme.showSnackbar(context,
+                            "File Not Imported \nFormat error in line ${actualResult.$1 + 1}, column ${actualResult.$2 + 1}\n${actualResult.$3}");
+                      }
                     },
                   ),
                   ListTile(
