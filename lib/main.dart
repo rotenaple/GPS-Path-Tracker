@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/pick_path.dart';
@@ -5,6 +6,7 @@ import 'package:gps_path_tracker/time_provider.dart';
 import 'package:gps_path_tracker/csv.dart';
 import 'package:gps_path_tracker/theme.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(const MyApp());
 
@@ -16,6 +18,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey();
   String _currentLocation = 'Fetching location...';
   double _currentSpeed = 0;
   double _linearDistance = 0.0;
@@ -31,8 +34,9 @@ class _MyAppState extends State<MyApp> {
   String _pathName = "";
   bool _manuallyIncremented = false;
   bool _buttonVisibility = false;
-  bool _isLoading = true;
+  String _isLoading = "true";
   bool _manualWarning = true;
+  String loadStatus = "";
 
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
@@ -44,16 +48,23 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initApp() async {
-    await importData();
-    _isLoading = false;
-    _initLocationStream();
-    await getTargetLatlong();
+    importData();
+    await LocationService().checkLocationPermission(context);
+    if (!permissionNotGranted) {
+      _initLocationStream();
+      getTargetLatlong();
+    } else {
+        setState(() {
+          _isLoading = "failed";
+        });
+    }
   }
 
   Future<void> importData() async {
     var returnValue = await ParseCSV().readCSV('assets/pathdata.csv', "asset");
     nameLatLngSet = returnValue.$1;
     _pathName = returnValue.$2;
+    _isLoading = "false";
   }
 
   void _initLocationStream() {
@@ -217,7 +228,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Builder(
         builder: (context) =>
-            _isLoading ? _buildLoading() : _buildUIFramework(context),
+        _isLoading == "true"
+            ? _buildLoading()
+            : _isLoading == "failed"
+            ? _buildFailed()
+            : _buildUIFramework(context),
       ),
     );
   }
@@ -244,7 +259,48 @@ class _MyAppState extends State<MyApp> {
             Text(
               "Loading",
               style: TextStyle(color: AppTheme.textColour),
-            )
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFailed() {
+    return Scaffold(
+
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Icon(
+              Icons.warning,
+              color: AppTheme.warningColour,
+              size: 64,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Location access is required \nfor this app to function properly.',
+              textAlign: TextAlign.center,
+              style: AppTheme.dialogContentStyle,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () async {
+                await openAppSettings();
+                exit(0);
+              },
+              style: AppTheme.primaryButtonStyle,
+              child: const Text('Go to Settings', style: AppTheme.dialogButtonStyle),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                exit(0);
+              },
+              style: AppTheme.primaryButtonStyle,
+              child: const Text('Close App', style: AppTheme.dialogButtonStyle),
+            ),
           ],
         ),
       ),

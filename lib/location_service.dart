@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
+late PermissionStatus permissionStatus;
+bool permissionNotGranted = false;
+
 
 class LocationService {
   LatLng currentCentre = const LatLng(0, 0);
@@ -32,13 +36,13 @@ class LocationService {
 
   }
 
-  Future<void> requestLocationPermission() async {
-    final permissionStatus = await Permission.location.request();
+  Future<void> checkLocationPermission(BuildContext context) async {
+    permissionStatus = await Permission.location.request();
+    print("permissionStatus");
+    print(permissionStatus);
 
-    if (permissionStatus.isGranted) {
-    } else if (permissionStatus.isDenied) {
-    } else if (permissionStatus.isPermanentlyDenied) {
-      openAppSettings();
+    if (!permissionStatus.isGranted) {
+      permissionNotGranted = true;
     }
   }
 }
