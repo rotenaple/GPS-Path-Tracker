@@ -57,10 +57,6 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 	Adelaide Showground, -34.94358585065314, 138.58400294719934, 0
 	Mile End (Destination), -34.92478949709206, 138.58016066198672, 0
 
-## To be Implemented
-
-- Proper permession request prompts to allow users to grant location access in-app.
-
 ## Gallery
 
 ![A Screenshot of the application.](demo/screenshot.png)
