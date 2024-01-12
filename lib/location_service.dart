@@ -40,17 +40,17 @@ class LocationService {
   }
 
   Future<void> checkLocationPermission(BuildContext context) async {
+    PermissionStatus permissionStatus = PermissionStatus.granted;
     if (!Platform.isWindows) {
       permissionStatus = await Permission.location.request();
-
-      if (kDebugMode) {
-        print("permissionStatus");
-        print(permissionStatus);
-      }
 
       if (!permissionStatus.isGranted) {
         permissionNotGranted = true;
       }
+    }
+    if (kDebugMode) {
+      print("permissionStatus");
+      print(permissionStatus);
     }
   }
 }

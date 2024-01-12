@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
     await LocationService().checkLocationPermission(context);
     if (!permissionNotGranted) {
       _initLocationStream();
-      getTargetLatlong();
+      await getTargetLatlong();
     } else {
       setState(() {
         _isLoading = "failed";
@@ -100,6 +100,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _updateDisplayInfo() {
+    getTargetLatlong();
     _calculateDistanceDisplay();
     _calculateSpeedDisplay();
     _calculateEtaDisplay();
