@@ -62,12 +62,27 @@ class ParseCSV {
 
       if (returnVal.$1) {
         await _saveFileToAppDirectory(file);
+        await _clearCache(file);
         return (-1, -1, "");
       } else {
         return (returnVal.$2, returnVal.$3, returnVal.$4);
       }
     }
     return (-1, -1, "");
+  }
+
+  Future<void> _clearCache(File file) async {
+    try {
+      String cachedFilePath = file.path;
+
+      if (await File(cachedFilePath).exists()) {
+        await File(cachedFilePath).delete();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error clearing cache: $e');
+      }
+    }
   }
 
   Future<(bool, int, int, String)> _validateCSV(File file) async {
