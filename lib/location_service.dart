@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:io' show Platform;
+
 late PermissionStatus permissionStatus;
 bool permissionNotGranted = false;
 
@@ -38,15 +40,17 @@ class LocationService {
   }
 
   Future<void> checkLocationPermission(BuildContext context) async {
-    permissionStatus = await Permission.location.request();
+    if (!Platform.isWindows) {
+      permissionStatus = await Permission.location.request();
 
-    if (kDebugMode) {
-      print("permissionStatus");
-      print(permissionStatus);
-    }
+      if (kDebugMode) {
+        print("permissionStatus");
+        print(permissionStatus);
+      }
 
-    if (!permissionStatus.isGranted) {
-      permissionNotGranted = true;
+      if (!permissionStatus.isGranted) {
+        permissionNotGranted = true;
+      }
     }
   }
 }
