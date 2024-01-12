@@ -13,8 +13,8 @@ class LocationService {
 
   Future<void> initLocationStream(Function(double, double, double) onLocationUpdate) async {
     const LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 1,
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 0,
     );
 
 
