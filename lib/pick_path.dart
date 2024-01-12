@@ -66,14 +66,14 @@ class PickPath extends StatelessWidget {
   }
 
   Widget buildFileCard(FileDetails fileDetail, String fileName, BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context, fileDetail.file.path);
-      },
-      child: Card(
+    return Card(
         color: AppTheme.flindersDust,
-        child: buildListTile(fileDetail, fileName, context),
-      ),
+        child: InkWell(
+          onTap: () {
+            Navigator.pop(context, fileDetail.file.path);},
+          borderRadius: BorderRadius.circular(10),
+          child: buildListTile(fileDetail, fileName, context),
+        )
     );
   }
 
