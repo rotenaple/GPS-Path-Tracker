@@ -73,7 +73,7 @@ class ParseCSV {
   Future<(bool, int, int, String)> _validateCSV(File file) async {
     final input = await file.readAsString();
     final lines = input.split('\n');
-    int index = 0; // Initialize the index variable.
+    int index = 0;
 
     for (var line in lines) {
       if (_isCommentOrEmpty(line)) {
@@ -94,25 +94,20 @@ class ParseCSV {
 
   (bool, int) _isValidCSVRow(String line) {
     List<dynamic> row = line.split(',');
-    int errorLocationColumn = -1;
 
     if (row.length != 4) {
-      errorLocationColumn = 0;
       return (false, 0);
     }
 
     if (!_isValidDouble(row[1], -90, 90)) {
-      errorLocationColumn = 1;
       return (false, 1);
     }
 
     if (!_isValidDouble(row[2], -180, 180)) {
-      errorLocationColumn = 2;
       return (false, 2);
     }
 
     if (!_isValidDouble(row[3], 0, double.infinity)) {
-      errorLocationColumn = 3;
       return (false, 3);
     }
 

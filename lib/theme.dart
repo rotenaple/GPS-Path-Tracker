@@ -78,11 +78,11 @@ class AppTheme {
 
   static Widget styledContainer({required Widget child}) {
     return Card(
+      color: flindersDust,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: child,
       ),
-      color: flindersDust,
     );
   }
 

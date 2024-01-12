@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/pick_path.dart';
@@ -114,18 +115,36 @@ class _MyAppState extends State<MyApp> {
     if (actualPTPDistance != 0) {
       distanceRatio = actualPTPDistance / linearPTPDistance;
       if (distanceRatio < 1) distanceRatio = 1;
+
+      if (kDebugMode) {
+        print("_targetIndex");
+        print(_targetIndex);
+        print("actualPTPDistance");
+        print(actualPTPDistance);
+      }
     }
 
     _estDistance = _linearDistance * distanceRatio;
 
-    if (_targetIndex < nameLatLngSet.length - 1 &&
-        distance(_lastPoint, _targetPoint) <
-            distance(_lastPoint, _locationService.currentCentre)) {
+    if (_targetIndex < nameLatLngSet.length - 1
+        && distance(_lastPoint, _targetPoint) <
+            distance(_lastPoint, _locationService.currentCentre)
+        && (_linearDistance < 1000)
+    ) {
       if (_manuallyIncremented == false) {
         _targetIndex++;
       }
+
       getTargetLatlong();
     }
+
+    if (kDebugMode) {
+      print("dist last-next");
+      print(distance(_lastPoint, _targetPoint));
+      print("dist last-current");
+      print(distance(_lastPoint, _locationService.currentCentre));
+    }
+
 
     if (_linearDistance >= 1000) {
       _linearDistanceDisplay = (_linearDistance / 1000).toStringAsFixed(2);
@@ -431,7 +450,7 @@ class _MyAppState extends State<MyApp> {
                       Navigator.pop(context);
                       final selectedPath = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => PickPath()),
+                        MaterialPageRoute(builder: (context) => const PickPath()),
                       );
                       processSelectedPath(selectedPath);
                     },
