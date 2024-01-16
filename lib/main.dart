@@ -51,6 +51,10 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initApp() async {
     importData();
     await LocationService().checkLocationPermission(context);
+
+    if (Platform.isWindows) {
+      _isLoading = "false";
+    }
     if (!permissionNotGranted) {
       _initLocationStream();
       await getTargetLatlong();
