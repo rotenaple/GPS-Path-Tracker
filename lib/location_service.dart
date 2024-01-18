@@ -1,13 +1,13 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gps_path_tracker/theme.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:io' show Platform;
 
 late PermissionStatus permissionStatus;
-bool permissionNotGranted = false;
+bool permissionFail = false;
 
 
 class LocationService {
@@ -40,22 +40,10 @@ class LocationService {
 
   }
 
-  Future<void> checkLocationPermission(BuildContext context) async {
-    PermissionStatus permissionStatus = PermissionStatus.granted;
-    if (!Platform.isWindows) {
-      permissionStatus = await Permission.location.request();
+  Future<String> checkLocationPermission(BuildContext context) async {
+    bool locationServiceEnabled = true;
+    bool locationPermissionGranted = true;
 
-<<<<<<< Updated upstream
-      if (!permissionStatus.isGranted) {
-        permissionNotGranted = true;
-      }
-    }
-    if (kDebugMode) {
-      print("permissionStatus");
-      print(permissionStatus);
-    }
-  }
-=======
       locationServiceEnabled = await Geolocator.isLocationServiceEnabled();
 
       //if (!kIsWeb) {
@@ -91,5 +79,4 @@ class LocationService {
         else return "Default";
       }
 
->>>>>>> Stashed changes
 }

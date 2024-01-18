@@ -38,11 +38,8 @@ class _MyAppState extends State<MyApp> {
   String _isLoading = "true";
   bool _manualWarning = true;
   String loadStatus = "";
-<<<<<<< Updated upstream
-=======
   String failType = "";
   String os = ReturnOS().returnOS();
->>>>>>> Stashed changes
 
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
@@ -56,13 +53,13 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initApp() async {
     importData();
-    await LocationService().checkLocationPermission(context);
+    failType = await LocationService().checkLocationPermission(context);
 
 
     if (os == "windows") {
       _isLoading = "false";
     }
-    if (!permissionNotGranted) {
+    if (!permissionFail) {
       _initLocationStream();
       await getTargetLatlong();
     } else {
@@ -319,29 +316,15 @@ class _MyAppState extends State<MyApp> {
               size: 64,
             ),
             const SizedBox(height: 24),
-<<<<<<< Updated upstream
-            const Padding(padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
-=======
             Padding(
               padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
->>>>>>> Stashed changes
               child: Text(
-                'Permission to use precise location is required for this app to function properly.',
+                failMessage(failType),
                 textAlign: TextAlign.center,
                 style: AppTheme.dialogContentStyle,
               ),
             ),
             const SizedBox(height: 24),
-<<<<<<< Updated upstream
-            ElevatedButton(
-              onPressed: () async {
-                await openAppSettings();
-                exit(0);
-              },
-              style: AppTheme.primaryButtonStyle,
-              child: const Text('OPEN SETTINGS',
-                  style: AppTheme.dialogButtonStyle),
-=======
             Visibility(
               visible: (os == "android" && failType == "Permission")
                   ? true
@@ -355,7 +338,6 @@ class _MyAppState extends State<MyApp> {
                 child: const Text('OPEN SETTINGS',
                     style: AppTheme.dialogButtonStyle),
               ),
->>>>>>> Stashed changes
             ),
             const SizedBox(height: 8),
             ElevatedButton(
@@ -678,8 +660,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-<<<<<<< Updated upstream
-=======
 
   String failMessage(String failType) {
     switch (failType) {
@@ -702,5 +682,4 @@ class _MyAppState extends State<MyApp> {
     }
     return "";
   }
->>>>>>> Stashed changes
 }
