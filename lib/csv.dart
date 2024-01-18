@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -7,17 +8,28 @@ import 'package:path_provider/path_provider.dart';
 class ParseCSV {
   String _pathName = 'Unnamed Path';
 
-  Future<(List<List<dynamic>>, String)> readCSV(String path, String source) async {
-    String csvData = await _loadCSVData(path, source);
+  Future<(List<List<dynamic>>, String)> readCSV(String source, {String path = "", String content = ""}) async {
+
+    String csvData = "";
+
+    switch (source){
+      case "asset":{
+        csvData = await rootBundle.loadString(path);
+      } break;
+      case "path":{
+        csvData = await File(path).readAsString();
+      } break;
+      case "string":{
+        csvData = content;
+      } break;
+    }
+
+
     final lines = csvData.split('\n');
     if (kDebugMode) {
       print(lines);
     }
     return (_processLines(lines), _pathName);
-  }
-
-  Future<String> _loadCSVData(String path, String source) async {
-    return source == 'asset' ? rootBundle.loadString(path) : File(path).readAsString();
   }
 
   List<List<dynamic>> _processLines(List<String> lines) {
@@ -50,25 +62,55 @@ class ParseCSV {
     return null;
   }
 
-  Future<(int, int, String)> importCSV() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['csv'],
-    );
+  Future<(int, int, String, String)> importCSV() async {
 
-    if (result != null) {
-      File file = File(result.files.single.path!);
-      (bool, int, int, String) returnVal = await _validateCSV(file);
+      if (!kIsWeb) {
+        FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['csv'],
+        );
 
-      if (returnVal.$1) {
-        await _saveFileToAppDirectory(file);
-        await _clearCache(file);
-        return (-1, -1, "");
-      } else {
-        return (returnVal.$2, returnVal.$3, returnVal.$4);
+        File file = File(result!.files.single.path!);
+        (bool, int, int, String) returnVal = await _validateCSV(true, file: file);
+
+        if (returnVal.$1) {
+          await _saveFileToAppDirectory(file);
+          await _clearCache(file);
+          return (-1, -1, "", "");
+        } else {
+          return (returnVal.$2, returnVal.$3, returnVal.$4, "");
+        }
       }
-    }
-    return (-1, -1, "");
+      else {
+
+        FilePickerResult? file = await FilePicker.platform.pickFiles(
+            type: FileType.any);
+
+        if (file != null) {
+          PlatformFile pickedFile = file.files.first;
+
+          if (pickedFile.bytes != null) {
+            String fileContents = utf8.decode(pickedFile.bytes!);
+            print("File contents: $fileContents");
+            (bool, int, int, String) returnVal = await _validateCSV(false, content: fileContents);
+
+            if (returnVal.$1) {
+
+              //set content to display
+
+              return (-1, -1, "", fileContents);
+            } else {
+
+              return (returnVal.$2, returnVal.$3, returnVal.$4, "");
+            }
+
+          }
+        }
+
+      }
+
+
+    return (-1, -1, "", "");
   }
 
   Future<void> _clearCache(File file) async {
@@ -85,12 +127,21 @@ class ParseCSV {
     }
   }
 
-  Future<(bool, int, int, String)> _validateCSV(File file) async {
-    final input = await file.readAsString();
+  Future<(bool, int, int, String)> _validateCSV(bool isFile, {File? file, String? content}) async {
+
+    String input = "";
+
+    if (isFile){
+      input = (await file?.readAsString())!;
+
+    } else {
+      input = content!;
+    }
     final lines = input.split('\n');
     int index = 0;
 
     for (var line in lines) {
+
       if (_isCommentOrEmpty(line)) {
         continue;
       }

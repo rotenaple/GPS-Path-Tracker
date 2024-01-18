@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -131,5 +133,18 @@ class AppTheme {
         duration: duration,
       ),
     );
+  }
+}
+
+class ReturnOS {
+  String returnOS(){
+    String platform = "web";
+    if (!kIsWeb){
+      if (Platform.isAndroid) platform = "android";
+      else if (Platform.isWindows) platform = "windows";
+      else platform = "other non-web";
+    }
+
+    return platform;
   }
 }

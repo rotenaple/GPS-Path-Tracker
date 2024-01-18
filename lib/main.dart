@@ -38,9 +38,15 @@ class _MyAppState extends State<MyApp> {
   String _isLoading = "true";
   bool _manualWarning = true;
   String loadStatus = "";
+<<<<<<< Updated upstream
+=======
+  String failType = "";
+  String os = ReturnOS().returnOS();
+>>>>>>> Stashed changes
 
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
+
 
   @override
   void initState() {
@@ -52,7 +58,8 @@ class _MyAppState extends State<MyApp> {
     importData();
     await LocationService().checkLocationPermission(context);
 
-    if (Platform.isWindows) {
+
+    if (os == "windows") {
       _isLoading = "false";
     }
     if (!permissionNotGranted) {
@@ -66,7 +73,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> importData() async {
-    var returnValue = await ParseCSV().readCSV('assets/pathdata.csv', "asset");
+    var returnValue =
+        await ParseCSV().readCSV('asset', path: 'assets/pathdata.csv');
     nameLatLngSet = returnValue.$1;
     _pathName = returnValue.$2;
     _isLoading = "false";
@@ -131,11 +139,10 @@ class _MyAppState extends State<MyApp> {
 
     _estDistance = _linearDistance * distanceRatio;
 
-    if (_targetIndex < nameLatLngSet.length - 1
-        && distance(_lastPoint, _targetPoint) <
-            distance(_lastPoint, _locationService.currentCentre)
-        && (_linearDistance < 1000)
-    ) {
+    if (_targetIndex < nameLatLngSet.length - 1 &&
+        distance(_lastPoint, _targetPoint) <
+            distance(_lastPoint, _locationService.currentCentre) &&
+        (_linearDistance < 1000)) {
       if (_manuallyIncremented == false) {
         _targetIndex++;
       }
@@ -149,7 +156,6 @@ class _MyAppState extends State<MyApp> {
       print("dist last-current");
       print(distance(_lastPoint, _locationService.currentCentre));
     }
-
 
     if (_linearDistance >= 1000) {
       _linearDistanceDisplay = (_linearDistance / 1000).toStringAsFixed(2);
@@ -236,7 +242,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   void processSelectedPath(String path) async {
-    var returnValue = await ParseCSV().readCSV(path, "path");
+    var returnValue = await ParseCSV().readCSV("path", path: path);
+    var newData = returnValue.$1;
+    _pathName = returnValue.$2;
+    setState(() {
+      nameLatLngSet = newData;
+      _targetIndex = 1;
+    });
+    forceFetchTargetLatlong();
+    _updateDisplayInfo();
+  }
+
+  void processWebSelectedContent(String content) async {
+    var returnValue = await ParseCSV().readCSV("string", content: content);
     var newData = returnValue.$1;
     _pathName = returnValue.$2;
     setState(() {
@@ -301,7 +319,12 @@ class _MyAppState extends State<MyApp> {
               size: 64,
             ),
             const SizedBox(height: 24),
+<<<<<<< Updated upstream
             const Padding(padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+=======
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+>>>>>>> Stashed changes
               child: Text(
                 'Permission to use precise location is required for this app to function properly.',
                 textAlign: TextAlign.center,
@@ -309,6 +332,7 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
             const SizedBox(height: 24),
+<<<<<<< Updated upstream
             ElevatedButton(
               onPressed: () async {
                 await openAppSettings();
@@ -317,6 +341,21 @@ class _MyAppState extends State<MyApp> {
               style: AppTheme.primaryButtonStyle,
               child: const Text('OPEN SETTINGS',
                   style: AppTheme.dialogButtonStyle),
+=======
+            Visibility(
+              visible: (os == "android" && failType == "Permission")
+                  ? true
+                  : false,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await openAppSettings();
+                  exit(0);
+                },
+                style: AppTheme.primaryButtonStyle,
+                child: const Text('OPEN SETTINGS',
+                    style: AppTheme.dialogButtonStyle),
+              ),
+>>>>>>> Stashed changes
             ),
             const SizedBox(height: 8),
             ElevatedButton(
@@ -431,34 +470,42 @@ class _MyAppState extends State<MyApp> {
                       style: AppTheme.listItemTextStyle,
                     ),
                     onTap: () async {
-                      Future<(int, int, String)> result;
+                      Future<(int, int, String, String)> result;
                       result = ParseCSV().importCSV();
-                      (int, int, String) actualResult = await result;
+                      (int, int, String, String) actualResult = await result;
                       Navigator.pop(context);
 
                       if (actualResult.$1 != -1) {
                         AppTheme.showSnackbar(context,
                             "File Not Imported \nFormat error in line ${actualResult.$1 + 1}, column ${actualResult.$2 + 1}\n${actualResult.$3}");
                       }
+
+                      if (kIsWeb) {
+                        processWebSelectedContent(actualResult.$4);
+                      }
                     },
                   ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.add_location,
-                      color: AppTheme.iconColor,
+                  Visibility(
+                    visible: kIsWeb ? false : true,
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.add_location,
+                        color: AppTheme.iconColor,
+                      ),
+                      title: const Text(
+                        'Choose a Path',
+                        style: AppTheme.listItemTextStyle,
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        final selectedPath = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PickPath()),
+                        );
+                        processSelectedPath(selectedPath);
+                      },
                     ),
-                    title: const Text(
-                      'Choose a Path',
-                      style: AppTheme.listItemTextStyle,
-                    ),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      final selectedPath = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const PickPath()),
-                      );
-                      processSelectedPath(selectedPath);
-                    },
                   ),
                   ListTile(
                     leading: const Icon(
@@ -631,4 +678,29 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+<<<<<<< Updated upstream
+=======
+
+  String failMessage(String failType) {
+    switch (failType) {
+      case "LocationService":
+        return "Please enable location service for this app to function properly.";
+      case "Permission":
+        return "Please grant location access for this app to function properly.";
+      case "Windows":
+        return "Location service & access is required for this app to function properly."
+            "\n Please check location settings at "
+            "\"Settings > Privacy & Security > Location\" and ensure the below are enabled:"
+            "\n"
+            "\n - Location Services"
+            "\n - Let Apps Access Your Location"
+            "\n - Let Desktop Apps Access Your Location"
+            "\n"
+            "Please restart the app after enabling the settings.";
+      default:
+        "Please check that you have enabled location service and granted permission access to GPS Path Tracker";
+    }
+    return "";
+  }
+>>>>>>> Stashed changes
 }
