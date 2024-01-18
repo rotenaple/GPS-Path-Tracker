@@ -4,11 +4,12 @@ This project is a Flutter-based application that tracks a user's path using GPS 
 
 ## Functionality
 
-- Real-Time Location Tracking: Utilizes GPS to fetch and display the user's current latitude and longitude.
-- Speed Calculation: Displays the current speed of the user.
-- Distance Measurement: Calculates and displays the linear distance to the next checkpoint.
-- ETA Calculation: Provides an estimated time of arrival to the next checkpoint based on the current speed and distance.
-- Manual Checkpoint Selection: You can manually choose the next checkpoint. 
+-    Real-Time Location Tracking: Uses GPS for current location coordinates.
+-    Speed Calculation: Shows user's current speed.
+-    Distance Measurement: Calculates distance to the next checkpoint.
+-    ETA Calculation: Estimates arrival time at the next checkpoint.
+-    Manual Checkpoint Selection: Enables choosing checkpoints manually.
+-    Path Saving: Saves multiple routes for later use. (not available in the web version)
 
 NB: The app typically updates checkpoints automatically. Manual selection is only recommended when the current checkpoint is passed by over 1 km. The "Find Nearest" feature attempts to find the two closest checkpoints, but it may not always be entirely accurate.
 
@@ -56,6 +57,9 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 	Goodwood, -34.9510196834551, 138.58507035441235, 0
 	Adelaide Showground, -34.94358585065314, 138.58400294719934, 0
 	Mile End (Destination), -34.92478949709206, 138.58016066198672, 0
+
+## Get the App
+The app is available for download [here](https://github.com/rotenaple/GPS-Path-Tracker/releases/tag/v1.0.1).
 
 ## Gallery
 
