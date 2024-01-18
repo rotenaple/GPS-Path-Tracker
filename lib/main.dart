@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gps_path_tracker/location_service.dart';
 import 'package:gps_path_tracker/pick_path.dart';
 import 'package:gps_path_tracker/time_provider.dart';
@@ -44,7 +45,6 @@ class _MyAppState extends State<MyApp> {
   final TimeController _timeController = TimeController();
   final LocationService _locationService = LocationService();
 
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +54,6 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initApp() async {
     importData();
     failType = await LocationService().checkLocationPermission(context);
-
 
     if (os == "windows") {
       _isLoading = "false";
@@ -80,7 +79,8 @@ class _MyAppState extends State<MyApp> {
   void _initLocationStream() {
     _locationService.initLocationStream((latitude, longitude, speed) {
       setState(() {
-        _currentLocation = '$latitude, $longitude';
+        _currentLocation =
+            "${latitude.toStringAsFixed(7)} ${longitude.toStringAsFixed(7)}";
         _currentSpeed = speed;
         _manuallyIncremented = false;
         _updateDisplayInfo();
@@ -264,6 +264,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: AppTheme.primaryColour,
+      systemNavigationBarColor: AppTheme.textColour,
+    ));
     return MaterialApp(
       home: Builder(
         builder: (context) => _isLoading == "true"
@@ -326,9 +330,8 @@ class _MyAppState extends State<MyApp> {
             ),
             const SizedBox(height: 24),
             Visibility(
-              visible: (os == "android" && failType == "Permission")
-                  ? true
-                  : false,
+              visible:
+                  (os == "android" && failType == "Permission") ? true : false,
               child: ElevatedButton(
                 onPressed: () async {
                   await openAppSettings();
@@ -457,13 +460,15 @@ class _MyAppState extends State<MyApp> {
                       (int, int, String, String) actualResult = await result;
                       Navigator.pop(context);
 
-                      if (actualResult.$1 != -1) {
-                        AppTheme.showSnackbar(context,
-                            "File Not Imported \nFormat error in line ${actualResult.$1 + 1}, column ${actualResult.$2 + 1}\n${actualResult.$3}");
-                      }
+                      print(actualResult);
 
-                      if (kIsWeb) {
-                        processWebSelectedContent(actualResult.$4);
+                      if (actualResult != null) {
+                        if (actualResult.$1 > 0) {
+                          AppTheme.showSnackbar(context,
+                              "File Not Imported \nFormat error in line ${actualResult.$1 + 1}, column ${actualResult.$2 + 1}\n${actualResult.$3}");
+                        } else if (actualResult.$1 == -1 && kIsWeb) {
+                          processWebSelectedContent(actualResult.$4);
+                        }
                       }
                     },
                   ),
@@ -506,7 +511,7 @@ class _MyAppState extends State<MyApp> {
                             context,
                             'App usually auto-updates checkpoints, '
                             'manual selection is only advised if over 1km past current point. '
-                            '\'Find Nearest\' may not always be precise.');
+                            '\'Find Nearest\' may not always be accurate.');
                         _manualWarning = false;
                       }
                     },

@@ -8,22 +8,27 @@ import 'package:path_provider/path_provider.dart';
 class ParseCSV {
   String _pathName = 'Unnamed Path';
 
-  Future<(List<List<dynamic>>, String)> readCSV(String source, {String path = "", String content = ""}) async {
-
+  Future<(List<List<dynamic>>, String)> readCSV(String source,
+      {String path = "", String content = ""}) async {
     String csvData = "";
 
-    switch (source){
-      case "asset":{
-        csvData = await rootBundle.loadString(path);
-      } break;
-      case "path":{
-        csvData = await File(path).readAsString();
-      } break;
-      case "string":{
-        csvData = content;
-      } break;
+    switch (source) {
+      case "asset":
+        {
+          csvData = await rootBundle.loadString(path);
+        }
+        break;
+      case "path":
+        {
+          csvData = await File(path).readAsString();
+        }
+        break;
+      case "string":
+        {
+          csvData = content;
+        }
+        break;
     }
-
 
     final lines = csvData.split('\n');
     if (kDebugMode) {
@@ -47,7 +52,8 @@ class ParseCSV {
   }
 
   bool _isPathNameLine(String line) => line.trim().startsWith('##');
-  bool _isCommentOrEmpty(String line) => line.trim().isEmpty || line.trim().startsWith('#');
+  bool _isCommentOrEmpty(String line) =>
+      line.trim().isEmpty || line.trim().startsWith('#');
 
   List<dynamic>? _processRow(String line) {
     var row = line.split(',');
@@ -63,52 +69,48 @@ class ParseCSV {
   }
 
   Future<(int, int, String, String)> importCSV() async {
+    if (!kIsWeb) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
 
-      if (!kIsWeb) {
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['csv'],
-        );
+      File file = File(result!.files.single.path!);
+      (bool, int, int, String) returnVal = await _validateCSV(true, file: file);
 
-        File file = File(result!.files.single.path!);
-        (bool, int, int, String) returnVal = await _validateCSV(true, file: file);
-
-        if (returnVal.$1) {
-          await _saveFileToAppDirectory(file);
-          await _clearCache(file);
-          return (-1, -1, "", "");
-        } else {
-          return (returnVal.$2, returnVal.$3, returnVal.$4, "");
-        }
+      if (returnVal.$1) {
+        await _saveFileToAppDirectory(file);
+        await _clearCache(file);
+        return (-1, -1, "", "");
+      } else {
+        return (returnVal.$2, returnVal.$3, returnVal.$4, "");
       }
-      else {
+    } else {
+      FilePickerResult? file =
+          await FilePicker.platform.pickFiles(type: FileType.any);
 
-        FilePickerResult? file = await FilePicker.platform.pickFiles(
-            type: FileType.any);
+      if (file == null) {
+        return (-2, -2, "Aborted", ""); // Specific value for aborted operation
+      }
 
-        if (file != null) {
-          PlatformFile pickedFile = file.files.first;
+      if (file != null) {
+        PlatformFile pickedFile = file.files.first;
 
-          if (pickedFile.bytes != null) {
-            String fileContents = utf8.decode(pickedFile.bytes!);
-            print("File contents: $fileContents");
-            (bool, int, int, String) returnVal = await _validateCSV(false, content: fileContents);
+        if (pickedFile.bytes != null) {
+          String fileContents = utf8.decode(pickedFile.bytes!);
+          print("File contents: $fileContents");
+          (bool, int, int, String) returnVal =
+              await _validateCSV(false, content: fileContents);
 
-            if (returnVal.$1) {
+          if (returnVal.$1) {
 
-              //set content to display
-
-              return (-1, -1, "", fileContents);
-            } else {
-
-              return (returnVal.$2, returnVal.$3, returnVal.$4, "");
-            }
-
+            return (-1, -1, "", fileContents);
+          } else {
+            return (returnVal.$2, returnVal.$3, returnVal.$4, "");
           }
         }
-
       }
-
+    }
 
     return (-1, -1, "", "");
   }
@@ -127,24 +129,20 @@ class ParseCSV {
     }
   }
 
-  Future<(bool, int, int, String)> _validateCSV(bool isFile, {File? file, String? content}) async {
-
+  Future<(bool, int, int, String)> _validateCSV(bool isFile,
+      {File? file, String? content}) async {
     String input = "";
 
-    if (isFile){
+    if (isFile)
       input = (await file?.readAsString())!;
-
-    } else {
+    else
       input = content!;
-    }
+
     final lines = input.split('\n');
     int index = 0;
 
     for (var line in lines) {
-
-      if (_isCommentOrEmpty(line)) {
-        continue;
-      }
+      if (_isCommentOrEmpty(line)) continue;
 
       (bool, int) errorLocationColumn = _isValidCSVRow(line);
 

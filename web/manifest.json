@@ -1,11 +1,11 @@
 {
-    "name": "gps_path_tracker",
-    "short_name": "gps_path_tracker",
+    "name": "GPS Path Tracker",
+    "short_name": "GPS Path Tracker",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#304195",
     "theme_color": "#304195",
-    "description": "A new Flutter project.",
+    "description": "GPS Path Tracker is designed to track and display GPS paths. It utilizes the user's location data to provide real-time updates on position, speed, and ETA to predefined waypoints.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
