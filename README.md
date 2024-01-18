@@ -59,7 +59,7 @@ The application by default reads from a CSV path file named "pathdata.csv" place
 	Mile End (Destination), -34.92478949709206, 138.58016066198672, 0
 
 ## Get the App
-The app is available for download [here](https://github.com/rotenaple/GPS-Path-Tracker/releases/tag/v1.0.1).
+The app is available for download [here](https://github.com/rotenaple/GPS-Path-Tracker/releases).
 
 ## Gallery
 
