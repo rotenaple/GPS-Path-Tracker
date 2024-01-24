@@ -24,7 +24,21 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.1
   flutter_launcher_icons: "^0.13.1"
-  msix: ^3.16.7
+  inno_bundle: ^0.4.0
+
+inno_bundle:
+  id: 9c95d477-79fc-574e-a424-d572c6904cce
+  name: gps_path_tracker
+  publisher: rotenaple
+  installer_icon: windows/runner/resources/app_icon.ico
+  languages:
+    - english
+  description: GPS Path Tracker is an app designed to track and display GPS paths. It utilizes the user's location data to provide real-time updates on position, speed, and estimated time of arrival to predefined waypoints.
+  url: https://github.com/rotenaple/GPS-Path-Tracker
+  updates_url: https://github.com/rotenaple/GPS-Path-Tracker/releases
+  admin: false
+
+
 
 flutter_icons:
   android: "launcher_icon"

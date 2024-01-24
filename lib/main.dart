@@ -681,7 +681,7 @@ class _MyAppState extends State<MyApp> {
             "\n - Let Apps Access Your Location"
             "\n - Let Desktop Apps Access Your Location"
             "\n"
-            "Please restart the app after enabling the settings.";
+            "\n Please restart the app after enabling the settings for the changes to take effect.";
       default:
         "Please check that you have enabled location service and granted permission access to GPS Path Tracker";
     }
