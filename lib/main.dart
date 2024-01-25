@@ -124,7 +124,6 @@ class _MyAppState extends State<MyApp> {
     double actualPTPDistance = nameLatLngSet[_targetIndex][3];
     if (actualPTPDistance != 0) {
       distanceRatio = actualPTPDistance / linearPTPDistance;
-      if (distanceRatio < 1) distanceRatio = 1;
 
       if (kDebugMode) {
         print("_targetIndex");
@@ -134,7 +133,14 @@ class _MyAppState extends State<MyApp> {
       }
     }
 
-    _estDistance = _linearDistance * distanceRatio;
+    if (distanceRatio < 1) {
+      distanceRatio = 1;
+    }
+    if (_linearDistance != 0) {
+      _estDistance = _linearDistance * distanceRatio;
+    } else {
+      _estDistance = 0;
+    }
 
     if (_targetIndex < nameLatLngSet.length - 1 &&
         distance(_lastPoint, _targetPoint) <
