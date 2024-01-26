@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rotenaple</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="https://rotenaple.com/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://rotenaple.com/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://rotenaple.com/favicon/favicon-16x16.png">
+    <link rel="manifest" href="https://rotenaple.com/favicon/site.webmanifest">
+    <link rel="mask-icon" href="https://rotenaple.com/favicon/safari-pinned-tab.svg" color="#be0029">
+    <meta name="msapplication-TileColor" content="#ebebeb">
+    <meta name="theme-color" content="#ebebeb">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Raleway:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://rotenaple.com/style.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="https://rotenaple.com"><img class="rotenaple" src="https://rotenaple.com/img/rotenaple_mono.svg" /></a></li>
+                <li><a class="nav-text" href="#contact"><ion-icon name="send"></ion-icon><span
+                            class="nav-label">Contact</span></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="mainbody" id="root">
+        <section id="about">
+            <h1>GPS Path Tracker</h1>
+            <p>This project is a Flutter-based application that tracks a user’s path using GPS data. It is designed to
+                provide real-time updates on the user’s current location, speed, and estimated time of arrival to the
+                next checkpoint. It is particularly useful for navigation and tracking purposes in various outdoor
+                activities.</p>
+
+        </section>
+
+        <section id="functions">
+            <h2>Functionality</h2>
+            <p>
+                Real-Time Location Tracking: Uses GPS for current location coordinates.
+                Speed Calculation: Shows user’s current speed.
+                Distance Measurement: Calculates distance to the next checkpoint.
+                ETA Calculation: Estimates arrival time at the next checkpoint.
+                Manual Checkpoint Selection: Enables choosing checkpoints manually.
+                Path Saving: Saves multiple routes for later use. (not available in the web version)
+            </p>
+            <h3>The format of the CSV should be as follows</h3>
+            <p class="code">
+                ##Name of Path<br>
+                #Checkpoint Name, Latitude, Longitude, Distance<br>
+                <br>
+                #(Distance is optional and helps calculate the estimated distance to the next checkpoint;<br>
+                #replace with "0" if the value is not available.)<br>
+                <br>
+                Origin, lat-origin, long-origin, 0<br>
+                Checkpoint1, lat-1, long-1, dist-to-1<br>
+                Checkpoint2, lat-2, long-2, dist-to-2<br>
+                ...<br>
+                Destination, lat-destination, long-destination, dist-to-destination</p>
+            <h3>Example with Distance</h3>
+            <p class="code">
+                ##Tonsley to Mile End<br>
+                #Checkpoint Name, Latitude, Longitude, Distance (metres)<br>
+                Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0<br>
+                Mitchell Park, -35.00201687283244, 138.56664464507801, 900<br>
+                Woodlands Park, -34.9829526878604, 138.56722835848817, 2400<br>
+                Edwardstown, -34.97179781965434, 138.57111153543917, 1200<br>
+                Emerson, -34.96630121888577, 138.57368190701837, 800<br>
+                Clarence Park, -34.96092680969005, 138.58031648701203, 800<br>
+                Goodwood, -34.9510196834551, 138.58507035441235, 1300<br>
+                Adelaide Showground, -34.94358585065314, 138.58400294719934, 1000<br>
+                Mile End (Destination), -34.92478949709206, 138.58016066198672, 2000<br>
+            </p>
+            <h3>Example without Distance</h3>
+            <p class="code">
+                ##Tonsley to Mile End<br>
+                #Checkpoint Name, Latitude, Longitude, No Distance<br>
+                Tonsley (Origin), -35.00940099074852, 138.56724570681996, 0<br>
+                Mitchell Park, -35.00201687283244, 138.56664464507801, 0<br>
+                Woodlands Park, -34.9829526878604, 138.56722835848817, 0<br>
+                Edwardstown, -34.97179781965434, 138.57111153543917, 0<br>
+                Emerson, -34.96630121888577, 138.57368190701837, 0<br>
+                Clarence Park, -34.96092680969005, 138.58031648701203, 0<br>
+                Goodwood, -34.9510196834551, 138.58507035441235, 0<br>
+                Adelaide Showground, -34.94358585065314, 138.58400294719934, 0<br>
+                Mile End (Destination), -34.92478949709206, 138.58016066198672, 0<br>
+            </p>
+        </section>
+
+        <section id="csv">
+            <h2>CSV Formatting Requirements</h2>
+            <p>
+                The application by default reads from a CSV path file named “pathdata.csv” placed in the “assets”
+                directory, each line representing a checkpoint with its name, geographical coordinates (latitude and
+                longitude), and optionally its distance from the previous checkpoint (in metres). Users can import and
+                use custom path files that adhere by the required formatting.
+            </p>
+
+            <p>NB: The app typically updates checkpoints automatically. Manual selection is only recommended when the
+                current checkpoint is passed by over 1 km. The “Find Nearest” feature attempts to find the two closest
+                checkpoints, but it may not always be entirely accurate.</p>
+        </section>
+
+        <section id="download">
+            <h2>Get the App</h2>
+            <p>
+                The app is available for download <a href="https://github.com/rotenaple/GPS-Path-Tracker/releases">here</a>.
+            </p>
+        </section>
+
+        <section id="gallery">
+            <h2>Gallery</h2>
+            <img src="https://raw.githubusercontent.com/rotenaple/GPS-Path-Tracker/main/demo/screenshot.png" alt="GPS Path Tracker Screenshot" width="80%"/>
+        </section>
+
+        <section id="projects">
+            <h2>Other Things I Made</h2>
+            <div id="project1">
+                <h3><a href="https://github.com/rotenaple/ISBN-Lookup">ISBN Lookup</a></h3>
+                <p>
+                    ISBN Lookup is a tool for fetching book information using ISBNs, utilizing multiple free online
+                    sources. It offers quick, comprehensive searches and easy data retrieval.
+                </p>
+            </div>
+
+            <div id="project3">
+                <h3><a href="https://github.com/rotenaple/Bubbl-Extra-Bold">Bubbl Extra Bold</a></h3>
+                <p>
+                    Bubbl Extra Bold is a fun and bold display font with a bubbly vibe. Great for all sorts of projects,
+                    it includes a broad selection of characters suitable for many Latin-based scripts and more.
+                </p>
+            </div>
+
+        </section>
+
+        <section id="contact">
+            <h2>Contact Me</h2>
+            <div class="contact-info">
+                <p><ion-icon name="mail"></ion-icon> <a href="mailto:edward@rotenaple.com">edward@rotenaple.com</a></p>
+                <p><ion-icon name="logo-linkedin"></ion-icon> <a href="https://www.linkedin.com/in/edward-loklam/"
+                        target="_blank">edward-loklam</a></p>
+                <p><ion-icon name="logo-github"></ion-icon> <a href="https://github.com/rotenaple"
+                        target="_blank">rotenaple</a></p>
+                <p><ion-icon name="logo-discord"></ion-icon> rotenaple</p>
+            </div>
+        </section>
+
+    </div>
+</body>
+
+</html>
