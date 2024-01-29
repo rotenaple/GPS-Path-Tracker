@@ -29,6 +29,8 @@
     <link rel="stylesheet" type="text/css" href="https://rotenaple.com/style.css">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="script.js"></script>
+
 </head>
 
 <body>
@@ -46,6 +48,7 @@
     <div class="mainbody" id="root">
         <section id="about">
             <h1>GPS Path Tracker</h1>
+            <div class="credit-0"></div>
             <p>This project is a Flutter-based application that tracks a user’s path using GPS data. It is designed to
                 provide real-time updates on the user’s current location, speed, and estimated time of arrival to the
                 next checkpoint. It is particularly useful for navigation and tracking purposes in various outdoor
@@ -63,7 +66,7 @@
                 <li>Manual Checkpoint Selection: Enables choosing checkpoints manually.</li>
                 <li>Path Saving: Saves multiple routes for later use. (not available in the web version)</li>
             </ul>
-            <h3>The format of the CSV should be as follows</h3>
+            <h3>Path File Format</h3>
             <p class="code">
                 ##Name of Path<br>
                 #Checkpoint Name, Latitude, Longitude, Distance<br>
@@ -117,7 +120,7 @@
             </p>
 
             <p>NB: The app typically updates checkpoints automatically. Manual selection is only recommended when the
-                current checkpoint is passed by over 1 km. The “Find Nearest” feature attempts to find the two closest
+                current checkpoint is passed by over 1km. The “Find Nearest” feature attempts to find the two closest
                 checkpoints, but it may not always be entirely accurate.</p>
         </section>
 
